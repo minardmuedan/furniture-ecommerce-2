@@ -1,12 +1,16 @@
 import 'server-only'
 
+export type RateLimiterParams = { maxAttempt: number; refill: { attempt: number; perSeconds: number } }
+
+export type RateLimiter = { isExceed: boolean; refillAt: number; decrement: () => { shouldWarn: boolean; refillAt: number } }
+
 type RecordData = { attempt: number; lastUsed: number }
 const records = new Map<string, RecordData>()
 
-export const createMemoryRateLimiter = (maxAttempt: number, { refill }: { refill: { attempt: number; perSeconds: number } }) => {
+export const createMemoryRateLimiter = ({ maxAttempt, refill }: RateLimiterParams) => {
   const refillPerMs = refill.perSeconds * 1000
 
-  return (id: string) => {
+  return (id: string): RateLimiter => {
     const now = Date.now()
     const record: RecordData = records.get(id) ?? { attempt: maxAttempt, lastUsed: now }
 
@@ -16,14 +20,17 @@ export const createMemoryRateLimiter = (maxAttempt: number, { refill }: { refill
       record.attempt = Math.min(maxAttempt, newRecordAttempts)
     }
 
-    const retryAt = record.lastUsed + refillPerMs
-    if (record.attempt <= 0) return { exceed: true, retryAt } as const
+    return {
+      isExceed: record.attempt <= 0,
+      refillAt: record.lastUsed + refillPerMs,
+      decrement: () => {
+        record.attempt -= 1
+        record.lastUsed = now
+        records.set(id, record)
 
-    record.attempt -= 1
-    record.lastUsed = now
-    records.set(id, record)
-
-    return { exceed: false, retryAt, ...record } as const
+        return { shouldWarn: record.attempt === 0, refillAt: record.lastUsed + refillPerMs }
+      },
+    }
   }
 }
 

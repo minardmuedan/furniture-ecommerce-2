@@ -5,21 +5,22 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import FormError from '@/components/ui/error'
 import { Field, FieldError, FieldGroup, FieldLabel } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
-import { useIsHydrated } from '@/hooks/is-hydrated'
-import { useRateLimiter } from '@/hooks/rate-limit'
-import { typedObjectEntries } from '@/lib/utils'
+import { useServerAction } from '@/hooks/server-action'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Controller, useForm } from 'react-hook-form'
 import { signupAction } from './action'
-import { signupSchema, type SignupSchema } from './schema'
+import { signupSchema } from './schema'
 
 export default function SignupCardForm() {
-  const isHydrated = useIsHydrated()
-  const rateLimiter = useRateLimiter('signup')
-
-  const form = useForm<SignupSchema>({
+  const { formState, ...form } = useForm({
     resolver: zodResolver(signupSchema),
     defaultValues: { username: '', email: '', password: '', confirmPassword: '' },
+  })
+
+  const action = useServerAction(signupAction, {
+    reactForm: form,
+    rateLimitKey: 'signup',
+    onError: (err) => form.setError('root', { message: err.message }),
   })
 
   const formFields = [
@@ -33,17 +34,6 @@ export default function SignupCardForm() {
     },
   ] as const
 
-  async function onSubmit(data: SignupSchema) {
-    const action = await signupAction(data)
-    rateLimiter.watchAction(action)
-
-    if (!action.success) {
-      if (action.type === 'server_error') form.setError('root', { message: action.message })
-      if (action.type === 'invalid_inputs')
-        typedObjectEntries(action.fieldErrors).map(([key, error]) => form.setError(key, { message: error[0] }))
-    }
-  }
-
   return (
     <Card>
       <CardHeader>
@@ -52,13 +42,13 @@ export default function SignupCardForm() {
       </CardHeader>
 
       <CardContent>
-        <form id="signup-form" onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-          <FormError error={form.formState.errors.root?.message} />
+        <form id="signup-form" onSubmit={form.handleSubmit(action.execute)} className="space-y-6">
+          <FormError error={formState.errors.root?.message} />
 
           {formFields.map((formField) => (
             <FieldGroup key={formField.name}>
               <Controller
-                disabled={rateLimiter.disabler}
+                disabled={action.rateLimiter.isLimit}
                 name={formField.name}
                 control={form.control}
                 render={({ field, fieldState }) => (
@@ -76,8 +66,13 @@ export default function SignupCardForm() {
         </form>
       </CardContent>
       <CardFooter className="relative flex-col">
-        <Button type="submit" disabled={!isHydrated || rateLimiter.disabler} form="signup-form" className="z-10 w-full">
-          {rateLimiter.disabler ? `Continue after ${rateLimiter.remainingSeconds} second/s` : 'Continue'}
+        <Button
+          type="submit"
+          disabled={!formState.isReady || formState.isSubmitting || action.rateLimiter.isLimit}
+          form="signup-form"
+          className="z-10 w-full"
+        >
+          {action.rateLimiter.isLimit ? `Continue after ${action.rateLimiter.remainingSeconds} second/s` : 'Continue'}
         </Button>
       </CardFooter>
     </Card>

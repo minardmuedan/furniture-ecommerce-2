@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { Roboto_Serif } from 'next/font/google'
 import './globals.css'
 import Navbar from '@/components/navbar'
+import { Toaster } from '@/components/ui/sonner'
 
 const roboto_serif = Roboto_Serif({
   subsets: ['latin'],
@@ -17,7 +18,9 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   return (
     <html lang="en">
       <body className={`${roboto_serif.className} antialiased`}>
+        <Toaster richColors position="top-right" />
         <Navbar />
+
         <main>{children}</main>
       </body>
     </html>
