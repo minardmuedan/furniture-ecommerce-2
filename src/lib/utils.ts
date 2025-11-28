@@ -1,13 +1,18 @@
 import { clsx, type ClassValue } from 'clsx'
+import { randomInt } from 'crypto'
 import { twMerge } from 'tailwind-merge'
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
-export function generateSecureRandomString(): string {
+export function generate6DigitsCode() {
+  return String(randomInt(100000, 1000000))
+}
+
+export function generateSecureRandomString(length: 24 | 28 = 24): string {
   const alphabet = 'abcdefghijkmnpqrstuvwxyz23456789'
-  const bytes = new Uint8Array(24)
+  const bytes = new Uint8Array(length)
   crypto.getRandomValues(bytes)
 
   let id = ''

@@ -1,12 +1,11 @@
 import type { Metadata } from 'next'
-import { Roboto_Serif } from 'next/font/google'
+import LocalFont from 'next/font/local'
 import './globals.css'
 import Navbar from '@/components/navbar'
 import { Toaster } from '@/components/ui/sonner'
 
-const roboto_serif = Roboto_Serif({
-  subsets: ['latin'],
-  weight: ['400', '500', '600', '700'],
+const roboto_serif = LocalFont({
+  src: '../../public/fonts/roboto-serif-latin-normal.woff2',
 })
 
 export const metadata: Metadata = {
