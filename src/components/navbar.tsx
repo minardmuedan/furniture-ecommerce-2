@@ -1,5 +1,6 @@
 import Link from 'next/link'
-import { ButtonLink } from './ui/button'
+import { Button, ButtonLink } from './ui/button'
+import { verifyEmailAction } from '@/features/auth/signup/verification/actions'
 
 export default function Navbar() {
   return (
@@ -8,6 +9,12 @@ export default function Navbar() {
 
       <nav>
         <ul className="flex items-center gap-1">
+          <li>
+            <form action={verifyEmailAction}>
+              <Button type="submit">Verify Email</Button>
+            </form>
+          </li>
+
           <li>
             <ButtonLink href="/signup">Sign up</ButtonLink>
           </li>
