@@ -9,4 +9,6 @@ export const signupSchema = z
   })
   .refine((data) => data.password === data.confirmPassword, { path: ['confirmPassword'], error: 'Password did not match' })
 
+export const verificationTokenSchema = z.object({ jwtToken: z.string() })
+
 export type SignupSchema = z.infer<typeof signupSchema>

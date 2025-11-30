@@ -10,14 +10,14 @@ io.on('connection', (socket) => {
   socket.on('join-room', (roomId, callback) => {
     if (roomId) {
       socket.join(`room-${roomId}`)
-      callback(true)
       console.log(socket.id, ' has joined to room: ', roomId)
+      callback(true)
     } else callback(false)
   })
 
-  socket.on('server-email-verification', (secret, { verificationId }) => {
-    if (secret && secret === process.env.SECRET) {
-      socket.to('room-minard').emit('email-verified', 'Successfully verified from socket server')
+  socket.on('server-email-verification', (secret, { verificationId, message }) => {
+    if (secret && secret === process.env.SOCKET_SECRET) {
+      socket.to(`room-${verificationId}`).emit('email-verified', message)
     }
   })
 

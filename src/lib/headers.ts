@@ -1,5 +1,5 @@
 import type { ResponseCookie } from 'next/dist/compiled/@edge-runtime/cookies'
-import { cookies } from 'next/headers'
+import { cookies, headers } from 'next/headers'
 
 export type CookieOption = Omit<Partial<ResponseCookie>, 'name' | 'value' | 'sameSite' | 'httpOnly' | 'secure'>
 
@@ -18,4 +18,31 @@ export async function setCookie(key: string, value: string, option?: CookieOptio
 export async function getCookie(name: string) {
   const cookieStore = await cookies()
   return cookieStore.get(name)?.value
+}
+
+export async function deleteCookie(key: string) {
+  const cookieStore = await cookies()
+  cookieStore.delete(key)
+}
+
+//users
+
+export function getIpAddress(throwWhenNull?: false): Promise<string | null>
+export function getIpAddress(throwWhenNull: true): Promise<string>
+export async function getIpAddress(throwWhenNull?: boolean) {
+  const headersStore = await headers()
+  const forwardedFor = headersStore.get('x-forwarded-for')
+  const ipAddress = (forwardedFor ? forwardedFor.split(',')[0].trim() : headersStore.get('x-real-ip')) ?? null
+  if (!ipAddress) {
+    if (throwWhenNull) throw 'No valid IP Address'
+    return null
+  }
+  return ipAddress
+}
+
+const ewan = getIpAddress()
+
+export async function getUserAgent() {
+  const headerStore = await headers()
+  return headerStore.get('user-agent')
 }

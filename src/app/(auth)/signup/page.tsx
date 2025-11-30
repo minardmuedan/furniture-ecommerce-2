@@ -1,16 +1,17 @@
 import { getVerificationTokenDb } from '@/db/utils/verifications'
+import SignupCardForm from '@/features/auth/signup/form'
 import EmailVerificationChecker from '@/features/auth/signup/verification/checker'
 import { getCookie } from '@/lib/headers'
 
 export default async function SignupPage() {
-  const verificationId = await getCookie('signup')
-  if (verificationId) {
-    const verificationTokenData = await getVerificationTokenDb(verificationId, 'email-verification')
+  const tokenId = await getCookie('signup')
+  if (tokenId) {
+    const verificationTokenData = await getVerificationTokenDb(tokenId, 'email-verification')
 
-    if (verificationTokenData && !verificationTokenData.user.emailVerified) {
-      return <div>a component that renders verification of the email</div>
+    if (verificationTokenData && Date.now() < verificationTokenData.expiresAt.getTime() && !verificationTokenData.user.emailVerified) {
+      return <EmailVerificationChecker verificationId={verificationTokenData.id} userEmail={verificationTokenData.user.email} />
     }
   }
 
-  return <EmailVerificationChecker verificationId={'somethingid'} userEmail="minard@gmail.examplecom" />
+  return <SignupCardForm />
 }

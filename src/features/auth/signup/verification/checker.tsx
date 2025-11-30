@@ -3,25 +3,31 @@
 import { Button } from '@/components/ui/button'
 import { socket } from '@/socket/client-socket'
 import { Mailbox, Send, Undo } from 'lucide-react'
+import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
+import ResendEmailVerificationButton from './resend-button'
 
 export default function EmailVerificationChecker({ verificationId, userEmail }: { verificationId: string; userEmail: string }) {
+  const router = useRouter()
   const [isConnected, setIsConnected] = useState(false)
   const [isRoomJoined, setIsRoomJoined] = useState(false)
 
   useEffect(() => {
     if (socket.connected) {
       onConnect()
-      socket.emit('join-room', verificationId, setIsRoomJoined)
     }
 
     function onConnect() {
       setIsConnected(true)
+      socket.emit('join-room', verificationId, setIsRoomJoined)
     }
 
     socket.on('connect', onConnect)
-    socket.on('email-verified', (message) => toast.success(message))
+    socket.on('email-verified', (message) => {
+      toast.success(message)
+      router.replace('/')
+    })
 
     return () => {
       socket.off('connect', onConnect)
@@ -41,9 +47,8 @@ export default function EmailVerificationChecker({ verificationId, userEmail }: 
       <div className="flex w-full flex-col gap-3">
         <Button onClick={() => socket.emit('check-room')}>check rooms</Button>
 
-        <Button>
-          Resend <Send />
-        </Button>
+        <ResendEmailVerificationButton />
+
         <Button variant="outline">
           <Undo /> Back to Sign up
         </Button>

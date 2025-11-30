@@ -6,33 +6,34 @@ import FormError from '@/components/ui/error'
 import { Field, FieldError, FieldGroup, FieldLabel } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
 import { useServerAction } from '@/hooks/server-action'
+import { typedObjectEntries } from '@/lib/utils'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Controller, useForm } from 'react-hook-form'
 import { signupAction } from './action'
 import { signupSchema } from './schema'
 
+const formFields = [
+  { name: 'username', title: 'Username', inputProps: { type: 'text', placeholder: 'username123', autoComplete: 'username' } },
+  { name: 'email', title: 'Email', inputProps: { type: 'email', placeholder: 'minard@example.com' } },
+  { name: 'password', title: 'Password', inputProps: { type: 'password', placeholder: '********', autoComplete: 'off' } },
+  {
+    name: 'confirmPassword',
+    title: 'Confirm Password',
+    inputProps: { type: 'password', placeholder: '********', autoComplete: 'off' },
+  },
+] as const
+
 export default function SignupCardForm() {
-  const { formState, ...form } = useForm({
+  const form = useForm({
     resolver: zodResolver(signupSchema),
     defaultValues: { username: '', email: '', password: '', confirmPassword: '' },
   })
 
   const action = useServerAction(signupAction, {
-    reactForm: form,
     rateLimitKey: 'signup',
     onError: (err) => form.setError('root', { message: err.message }),
+    onFieldError: (fields) => typedObjectEntries(fields).map(([key, error]) => form.setError(key, { message: error[0] })),
   })
-
-  const formFields = [
-    { name: 'username', title: 'Username', inputProps: { type: 'text', placeholder: 'username123', autoComplete: 'username' } },
-    { name: 'email', title: 'Email', inputProps: { type: 'email', placeholder: 'minard@example.com' } },
-    { name: 'password', title: 'Password', inputProps: { type: 'password', placeholder: '********', autoComplete: 'off' } },
-    {
-      name: 'confirmPassword',
-      title: 'Confirm Password',
-      inputProps: { type: 'password', placeholder: '********', autoComplete: 'off' },
-    },
-  ] as const
 
   return (
     <Card>
@@ -43,7 +44,7 @@ export default function SignupCardForm() {
 
       <CardContent>
         <form id="signup-form" onSubmit={form.handleSubmit(action.execute)} className="space-y-6">
-          <FormError error={formState.errors.root?.message} />
+          <FormError error={form.formState.errors.root?.message} />
 
           {formFields.map((formField) => (
             <FieldGroup key={formField.name}>
@@ -68,7 +69,7 @@ export default function SignupCardForm() {
       <CardFooter className="relative flex-col">
         <Button
           type="submit"
-          disabled={!formState.isReady || formState.isSubmitting || action.rateLimiter.isLimit}
+          disabled={!form.formState.isReady || action.isPending || action.rateLimiter.isLimit}
           form="signup-form"
           className="z-10 w-full"
         >
