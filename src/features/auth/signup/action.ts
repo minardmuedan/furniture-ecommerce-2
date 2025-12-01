@@ -3,23 +3,25 @@
 import { createUserDb, getUserByEmailDb, updateUserDb } from '@/db/utils/users'
 import { createVerificationTokenDb, deleteUserVerificationTokensDb } from '@/db/utils/verifications'
 import { setCookie } from '@/lib/headers'
-import { createServerAction, throwFieldError } from '@/lib/server-action'
-import { generateSecureRandomString } from '@/lib/utils'
-import bcrypt from 'bcryptjs'
-import { signupSchema, type SignupSchema } from './schema'
 import { signJWTToken } from '@/lib/jwt-token'
 import { mailerSendEmailVerificationToken } from '@/lib/mailer'
+import { createServerAction } from '@/lib/server-action'
 import { createSession } from '@/lib/session'
+import { generateSecureRandomString } from '@/lib/utils'
+import bcrypt from 'bcryptjs'
+import { signupSchema } from './schema'
 
 export const signupAction = createServerAction(signupSchema)
   .ratelimit({ key: '1', maxAttempt: 8, refill: { attempt: 3, perSeconds: 30 } })
-  .handle(async ({ username, email, password }) => {
+  .handle(async ({ username, email, password }, throwFieldError) => {
     let userId = generateSecureRandomString()
     const hashedPassword = await bcrypt.hash(password, 10)
     const existingUser = await getUserByEmailDb(email)
+    if (!existingUser) throwFieldError({ email: 'No user with that email' })
+    existingUser?.email
 
     if (existingUser) {
-      if (existingUser.emailVerified) throwFieldError<SignupSchema>({ email: 'Email already in use!' })
+      if (existingUser.emailVerified) throwFieldError({ email: 'Email already in use!' })
       userId = existingUser.id
       await deleteUserVerificationTokensDb(userId)
       await updateUserDb(userId, { username, password: hashedPassword })

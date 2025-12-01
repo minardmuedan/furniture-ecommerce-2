@@ -9,7 +9,7 @@ export default function ResendEmailVerificationButton() {
   })
 
   return (
-    <Button>
+    <Button onClick={() => action.execute()}>
       Resend <Send />
     </Button>
   )

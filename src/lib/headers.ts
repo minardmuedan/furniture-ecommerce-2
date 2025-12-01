@@ -40,8 +40,6 @@ export async function getIpAddress(throwWhenNull?: boolean) {
   return ipAddress
 }
 
-const ewan = getIpAddress()
-
 export async function getUserAgent() {
   const headerStore = await headers()
   return headerStore.get('user-agent')

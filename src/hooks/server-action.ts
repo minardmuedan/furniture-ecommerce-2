@@ -1,36 +1,32 @@
-import type { ActionHandler, ActionHandlerWithNoInputs, CustomErrorTypes, FieldErrors } from '@/lib/server-action'
+import type { CustomErrorTypes, ServerAction } from '@/lib/server-action'
 import { useEffect, useState } from 'react'
 import { useCountDown } from './countdown'
 
+type OnErrorError = { type: CustomErrorTypes | 'server_error'; message: string }
 type InitNoInputs<R> = {
   rateLimitKey: string
-  onError?: (error: { type: CustomErrorTypes | 'server_error'; message: string }) => void
   onSuccess?: (data: R) => void
-  onSettled?: (actionData: ActionHandlerWithNoInputs<R>) => void
+  onError?: (error: OnErrorError) => void
+  onSettled?: (actionData: { success: true; data: R } | { success: false; error: OnErrorError }) => void
 }
+type Init<R, TFields> = InitNoInputs<R> & { onFieldError?: (errorFields: { [P in keyof TFields]?: string[] }) => void }
 
-type Init<R, T> = Omit<InitNoInputs<R>, 'onSettled'> & {
-  onFieldError?: (errorFields: FieldErrors<T>) => void
-  onSettled?: (actionData: ActionHandler<R, T>) => void
-}
-
-type RateLimiter = { rateLimiter: { isLimit: boolean; remainingSeconds: number } }
-type UseServerActionReturnType = RateLimiter & { isPending: boolean }
+type UseServerAction = { isPending: boolean; rateLimiter: { isLimit: boolean; remainingSeconds: number } }
 
 export function useServerAction<R>(
-  serverAction: () => Promise<ActionHandlerWithNoInputs<R>>,
+  serverAction: () => Promise<ServerAction<R, never>>,
   init: InitNoInputs<R>,
-): UseServerActionReturnType & { execute: () => Promise<R> }
+): UseServerAction & { execute: () => Promise<R> }
 
-export function useServerAction<R, T>(
-  serverAction: (fields: T) => Promise<ActionHandler<R, T>>,
-  init: Init<R, T>,
-): UseServerActionReturnType & { execute: (inputs: T) => Promise<R> }
+export function useServerAction<R, TFields>(
+  serverAction: (fields: TFields) => Promise<ServerAction<R, TFields>>,
+  init: Init<R, TFields>,
+): UseServerAction & { execute: (inputs: TFields) => Promise<R> }
 
-export function useServerAction<R, T>(
-  serverAction: (fields?: T) => Promise<ActionHandlerWithNoInputs<R> | ActionHandler<R, T>>,
-  init: InitNoInputs<R> | Init<R, T>,
-): UseServerActionReturnType & { execute: (inputs?: T) => Promise<R | undefined> } {
+export function useServerAction<R, TFields>(
+  serverAction: (() => Promise<ServerAction<R, never>>) | ((fields: TFields) => Promise<ServerAction<R, TFields>>),
+  init: Init<R, TFields>,
+) {
   const [isPending, setIsPending] = useState(false)
   const { timeLeft, setTimeLeft } = useCountDown()
 
@@ -43,28 +39,31 @@ export function useServerAction<R, T>(
   return {
     isPending,
     rateLimiter: { isLimit: timeLeft > 0, remainingSeconds: timeLeft },
-    execute: async (inputs?: T) => {
+    execute: async (inputs: TFields) => {
       setIsPending(true)
-      const actionData = inputs ? await serverAction(inputs) : await serverAction()
+      const actionData = await serverAction(inputs)
 
       setIsPending(false)
-      ;(init.onSettled as (actionData: any) => void)?.(actionData)
 
       if (actionData.ratelimit) {
-        localStorage.setItem(init.rateLimitKey, actionData.ratelimit.retryAt.toString())
-        setTimeLeft(getSecondsLeft(actionData.ratelimit.retryAt))
+        localStorage.setItem(init.rateLimitKey, actionData.ratelimit.refillAt.toString())
+        setTimeLeft(getSecondsLeft(actionData.ratelimit.refillAt))
       }
 
       if (actionData.isError) {
-        const messageError = actionData.type !== 'invalid_inputs' && actionData.type !== 'rate_limit'
-        if (messageError) init.onError?.(actionData)
+        if (actionData.type === 'input_error') init.onFieldError?.(actionData.fieldErrors)
 
-        if (actionData.type === 'invalid_inputs' && 'onFieldError' in init) init.onFieldError?.(actionData.fieldErrors)
-      } else {
-        const successData = actionData.data
-        init.onSuccess?.(successData)
-        return successData
+        if (actionData.type !== 'rate_limit' && actionData.type !== 'input_error') {
+          init.onError?.(actionData)
+          init.onSettled?.({ success: false, error: actionData })
+        }
+        return undefined
       }
+
+      const data = actionData.data
+      init.onSuccess?.(data)
+      init.onSettled?.({ success: true, data })
+      return data
     },
   }
 }

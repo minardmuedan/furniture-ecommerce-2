@@ -11,7 +11,7 @@ export default function VerifyEmailButton({ jwtToken }: { jwtToken: string }) {
 
   const action = useServerAction(verifyEmailAction, {
     rateLimitKey: 'verify-email',
-    onSuccess: ({ data }) => {
+    onSuccess: (data) => {
       toast.success(data.message)
       router.replace(data.redirect)
     },
