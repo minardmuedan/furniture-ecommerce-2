@@ -1,5 +1,5 @@
 {
   "watch": ["src/socket/index.ts"],
-  "exec": "ts-node --project tsconfig.server.json src/socket/index.ts",
+  "exec": "bun --bun src/socket/index.ts",
   "ext": "js ts"
 }
