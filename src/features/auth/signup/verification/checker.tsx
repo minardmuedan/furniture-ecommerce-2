@@ -1,7 +1,7 @@
 'use client'
 
 import { Button } from '@/components/ui/button'
-import { socket } from '@/socket/client-socket'
+import { socket } from '@/socket-io/socket'
 import { Mailbox, Undo } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'

@@ -1,9 +1,10 @@
 'use server'
 
+import connectRedis from '@/lib/redis'
+
 export const memaAction = async () => {
   const start = Date.now()
-
-  await fetch(`http://localhost:3000/api/mema`)
-
-  console.log('d: ', Date.now() - start, ' ms')
+  const redis = await connectRedis()
+  await redis.set(`${Date.now()}`, 'minard2123frommema action', { condition: 'NX' })
+  console.log('redis duration: ', Date.now() - start, ' ms')
 }
