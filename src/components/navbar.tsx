@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { ButtonLink } from './ui/button'
+import { FlaskConical } from 'lucide-react'
 
 export default function Navbar() {
   return (
@@ -10,6 +11,12 @@ export default function Navbar() {
         <ul className="flex items-center gap-1">
           <li>
             <ButtonLink href="/signup">Sign up</ButtonLink>
+          </li>
+
+          <li>
+            <ButtonLink variant="link" href="/test">
+              Test <FlaskConical />
+            </ButtonLink>
           </li>
         </ul>
       </nav>

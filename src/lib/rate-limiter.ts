@@ -1,35 +1,34 @@
 import 'server-only'
+import { redisPublisherConnect } from './redis'
 
-export type RateLimiterParams = { maxAttempt: number; refill: { attempt: number; perSeconds: number } }
+export type RateLimiterParams = { capacity: number; refillRate: number; refillPerSeconds: number }
 
-type RateLimit =
-  | { isExceed: true; retryAt: number }
-  | ({ isExceed: false } & ({ shouldWarn: true; refillAt: number } | { shouldWarn: false }))
+type RateLimitReturnType = ({ isExceed: true } | { isExceed: false; shouldWarn: boolean }) & { refillAt: number }
 
-type RecordData = { attempt: number; lastUsed: number }
-const records = new Map<string, RecordData>()
-
-export const createMemoryRateLimiter = ({ maxAttempt, refill }: RateLimiterParams) => {
-  const refillPerMs = refill.perSeconds * 1000
-
-  return (id: string): RateLimit => {
+export const createRateLimiter = ({ capacity, refillRate, refillPerSeconds }: RateLimiterParams) => {
+  const refillPerMs = refillPerSeconds * 1000
+  return async ({ key, ip }: { key: string; ip: string }): Promise<RateLimitReturnType> => {
     const now = Date.now()
-    const record: RecordData = records.get(id) ?? { attempt: maxAttempt, lastUsed: now }
+    const identifier = `ratelimit:${key}:${ip}`
+    const redis = await redisPublisherConnect()
 
-    const elapsed = Math.floor((now - record.lastUsed) / refillPerMs)
-    if (elapsed > 0) {
-      const newRecordAttempts = elapsed * refill.attempt + record.attempt
-      record.attempt = Math.min(maxAttempt, newRecordAttempts)
-    }
+    const data = await redis.hGetAll(identifier)
+    let tokens = data.tokens ? parseInt(data.tokens) : capacity
+    let lastUsed = data.lastUsed ? parseInt(data.lastUsed) : now
 
-    if (record.attempt <= 0) return { isExceed: true, retryAt: record.lastUsed + refillPerMs }
+    const elapsed = now - lastUsed
+    const tokensToAdd = Math.floor(elapsed / refillPerMs) * refillRate
+    tokens = Math.min(capacity, tokens + tokensToAdd)
 
-    record.attempt -= 1
-    record.lastUsed = now
-    records.set(id, record)
+    if (tokens <= 0) return { isExceed: true, refillAt: lastUsed + refillPerMs }
 
-    return { isExceed: false, shouldWarn: record.attempt < 1, refillAt: record.lastUsed + refillPerMs }
+    lastUsed = now
+    tokens--
+    await redis
+      .multi()
+      .hSet(identifier, { tokens, lastUsed })
+      .expire(identifier, capacity * refillPerSeconds)
+      .exec()
+    return { isExceed: false, refillAt: lastUsed + refillPerMs, shouldWarn: tokens < 1 }
   }
 }
-
-// todo:  add cleanup

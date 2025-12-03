@@ -1,18 +1,15 @@
 import { createClient } from 'redis'
 
-const client = createClient()
+const publisher = createClient({})
 
-client.on('error', (err) => console.log('Redis Client Error ', err))
-
-let isConnected = false
-async function redisConnect() {
-  if (!isConnected) {
-    console.log('redis connects')
-    await client.connect()
-    isConnected = true
-  }
-
-  return client
+export async function redisPublisherConnect() {
+  if (!publisher.isOpen) await publisher.connect()
+  return publisher
 }
 
-export default redisConnect
+const subscriber = publisher.duplicate()
+
+export async function redisSubscriberConnect() {
+  if (!subscriber.isOpen) await subscriber.connect()
+  return subscriber
+}

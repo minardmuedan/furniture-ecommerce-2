@@ -1,6 +1,6 @@
 import 'server-only'
 import { z } from 'zod'
-import { createMemoryRateLimiter, type RateLimiterParams } from './rate-limiter'
+import { createRateLimiter, type RateLimiterParams } from './rate-limiter'
 import { typedObjectEntries } from './utils'
 
 type RateLimiterInit = { key: string } & RateLimiterParams
@@ -36,14 +36,13 @@ export function createServerAction<TSchema extends z.ZodObject>(schema?: TSchema
   type Fields = z.infer<TSchema>
   return {
     ratelimit: (init: RateLimiterInit) => {
-      const rateLimiter = createMemoryRateLimiter(init)
+      const rateLimiter = createRateLimiter(init)
 
       return {
         handle: <R>(serverActionFn: (fields?: Fields, throwFieldError?: ThrowFieldErrorFn<Fields>) => Promise<R>) => {
           return async (inputs?: unknown): Promise<ServerAction<R, Fields>> => {
-            const limiterId = init.key // todo: + ip address here
-            const limiter = rateLimiter(limiterId)
-            if (limiter.isExceed) return { isError: true, type: 'rate_limit', ratelimit: { refillAt: limiter.retryAt } }
+            const limiter = await rateLimiter({ key: init.key, ip: 'minardipaddress' })
+            if (limiter.isExceed) return { isError: true, type: 'rate_limit', ratelimit: { refillAt: limiter.refillAt } }
 
             const actionData = await _action()
             const ratelimit = limiter.shouldWarn ? { refillAt: limiter.refillAt } : undefined
