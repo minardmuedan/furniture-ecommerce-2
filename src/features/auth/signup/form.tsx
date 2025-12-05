@@ -33,6 +33,7 @@ export default function SignupCardForm() {
     rateLimitKey: 'signup',
     onError: (err) => form.setError('root', { message: err.message }),
     onFieldError: (fields) => typedObjectEntries(fields).map(([key, error]) => form.setError(key, { message: error[0] })),
+    onSuccess: () => localStorage.setItem('resend-email-verification', (Date.now() + 30_000).toString()),
   })
 
   return (

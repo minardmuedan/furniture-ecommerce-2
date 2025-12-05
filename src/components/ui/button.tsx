@@ -1,8 +1,9 @@
-import * as React from 'react'
 import { Slot } from '@radix-ui/react-slot'
 import { cva, type VariantProps } from 'class-variance-authority'
+import * as React from 'react'
 
 import { cn } from '@/lib/utils'
+import type { Route } from 'next'
 import type { LinkProps } from 'next/link'
 import Link from 'next/link'
 
@@ -56,7 +57,7 @@ function ButtonLink({
   variant,
   size,
   ...props
-}: LinkProps & React.ComponentProps<'a'> & VariantProps<typeof buttonVariants>) {
+}: LinkProps<Route> & React.ComponentProps<'a'> & VariantProps<typeof buttonVariants>) {
   return <Link className={cn(buttonVariants({ variant, size, className }))} {...props} />
 }
 

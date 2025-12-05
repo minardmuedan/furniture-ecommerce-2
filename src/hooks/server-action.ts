@@ -1,32 +1,44 @@
 import type { CustomErrorTypes, ServerAction } from '@/lib/server-action'
 import { useEffect, useState } from 'react'
 import { useCountDown } from './countdown'
+import { useRouter } from 'next/navigation'
+import type { Route } from 'next'
+import type { NavigateOptions } from 'next/dist/shared/lib/app-router-context.shared-runtime'
 
-type OnErrorError = { type: CustomErrorTypes | 'server_error'; message: string }
+type AppRouterType = {
+  push(href: Route): void
+  replace(href: Route): void
+  prefetch(href: Route): void
+  back(): void
+  refresh(): void
+}
+
+type OnErrorErrors = { type: CustomErrorTypes | 'server_error'; message: string }
 type InitNoInputs<R> = {
   rateLimitKey: string
-  onSuccess?: (data: R) => void
-  onError?: (error: OnErrorError) => void
-  onSettled?: (actionData: { success: true; data: R } | { success: false; error: OnErrorError }) => void
+  onSuccess?: (data: R, router: AppRouterType) => void
+  onError?: (error: OnErrorErrors, router: AppRouterType) => void
+  onSettled?: (actionData: { success: true; data: R } | { success: false; error: OnErrorErrors }, router: AppRouterType) => void
 }
 type Init<R, TFields> = InitNoInputs<R> & { onFieldError?: (errorFields: { [P in keyof TFields]?: string[] }) => void }
 
-type UseServerAction = { isPending: boolean; rateLimiter: { isLimit: boolean; remainingSeconds: number } }
+type UseServerActionReturnType = { isPending: boolean; rateLimiter: { isLimit: boolean; remainingSeconds: number } }
 
 export function useServerAction<R>(
   serverAction: () => Promise<ServerAction<R, never>>,
   init: InitNoInputs<R>,
-): UseServerAction & { execute: () => Promise<R> }
+): UseServerActionReturnType & { execute: () => Promise<R> }
 
 export function useServerAction<R, TFields>(
   serverAction: (fields: TFields) => Promise<ServerAction<R, TFields>>,
   init: Init<R, TFields>,
-): UseServerAction & { execute: (inputs: TFields) => Promise<R> }
+): UseServerActionReturnType & { execute: (inputs: TFields) => Promise<R> }
 
 export function useServerAction<R, TFields>(
   serverAction: (() => Promise<ServerAction<R, never>>) | ((fields: TFields) => Promise<ServerAction<R, TFields>>),
   init: Init<R, TFields>,
 ) {
+  const router = useRouter()
   const [isPending, setIsPending] = useState(false)
   const { timeLeft, setTimeLeft } = useCountDown()
 
@@ -54,15 +66,15 @@ export function useServerAction<R, TFields>(
         if (actionData.type === 'input_error') init.onFieldError?.(actionData.fieldErrors)
 
         if (actionData.type !== 'rate_limit' && actionData.type !== 'input_error') {
-          init.onError?.(actionData)
-          init.onSettled?.({ success: false, error: actionData })
+          init.onError?.(actionData, router)
+          init.onSettled?.({ success: false, error: actionData }, router)
         }
         return undefined
       }
 
       const data = actionData.data
-      init.onSuccess?.(data)
-      init.onSettled?.({ success: true, data })
+      init.onSuccess?.(data, router)
+      init.onSettled?.({ success: true, data }, router)
       return data
     },
   }

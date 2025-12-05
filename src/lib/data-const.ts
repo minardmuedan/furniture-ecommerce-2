@@ -1,0 +1,7 @@
+export const SESSION_COOKIE_KEY = 'session'
+
+export const FIFTEEN_MINUTES_IN_MS = 60 * 15 * 1000
+export const FIFTEEN_MINUTES_IN_SECONDS = FIFTEEN_MINUTES_IN_MS / 1000
+export const DAY_IN_MS = 60 * 60 * 24 * 1000
+export const MONTH_IN_MS = DAY_IN_MS * 30
+export const MONTH_IN_SECONDS = MONTH_IN_MS / 1000

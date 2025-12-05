@@ -15,9 +15,12 @@ export async function setCookie(key: string, value: string, option?: CookieOptio
   cookieStore.set(key, value, { ...DEFAULT_SECURED_COOKIE_OPTION, ...option })
 }
 
-export async function getCookie(name: string) {
+type SessionValue<TName> = TName extends 'session' ? string : string | undefined
+export async function getCookie<TName extends string>(name: TName): Promise<SessionValue<TName>> {
   const cookieStore = await cookies()
-  return cookieStore.get(name)?.value
+  const value = cookieStore.get(name)?.value
+  if (name === 'session' && !value) throw new Error('No Session Id')
+  return value as SessionValue<TName>
 }
 
 export async function deleteCookie(key: string) {
