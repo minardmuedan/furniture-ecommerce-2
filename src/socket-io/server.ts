@@ -1,31 +1,24 @@
 import { redisSubscriberConnect } from '@/lib/redis'
 import type { ClientToServerEvents, ServerToClientEvents, SocketData } from '@/types/socket'
 import 'dotenv/config'
-import { Server } from 'socket.io'
+import { Server, type DefaultEventsMap } from 'socket.io'
 
-const io = new Server<ClientToServerEvents, ServerToClientEvents, {}, SocketData>(4000, {
+const io = new Server<ClientToServerEvents, ServerToClientEvents, DefaultEventsMap, SocketData>(4000, {
   cors: { origin: process.env.NEXT_PUBLIC_BASE_URL!, credentials: true },
 })
 
 io.use(async (socket, next) => {
-  const cookies = socket.handshake.headers.cookie
-  if (!cookies) return next()
+  const { sessionId } = socket.handshake.auth
+  if (!sessionId) return next(new Error('no session id'))
 
-  const cookieObj: Record<string, string> = {}
-  cookies.split(';').forEach((cookie) => {
-    const [key, value] = cookie.trim().split('=')
-    cookieObj[key] = value
-  })
-
-  socket.data.sessionId = cookieObj.session
+  socket.data.sessionId = sessionId
   next()
 })
 
 io.on('connection', async (socket) => {
   console.log('✔️ 🔌 : ', socket.id)
 
-  const sessionId = socket.data.sessionId
-  if (sessionId) socket.join(`session:${sessionId}`)
+  socket.join(`session:${socket.data.sessionId}`)
 
   socket.on('join-room', (roomId) => {
     if (roomId) socket.join(`room:${roomId}`)

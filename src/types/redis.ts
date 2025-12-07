@@ -1,11 +1,9 @@
-import type { ClientSessionUser, Session } from './session'
+import type { ClientSession, Session } from './session'
 
 export type RedisSchema = {
   [key: `ratelimiter:${string}`]: { tokens: number; lastUsed: number }
-  [key: `verification:${'email' | 'password'}:${string}`]: {
-    sessionId: string
+  [key: `verification:${'email' | 'password'}:${string}`]: NonNullable<ClientSession> & {
     token: string
-    user: { id: string } & NonNullable<ClientSessionUser>
     expiresAt: number
   }
   [key: `session:${string}`]: Session | null

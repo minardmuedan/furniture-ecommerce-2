@@ -16,4 +16,4 @@ export type Session = {
   }
 }
 
-export type ClientSessionUser = { username: string; email: string } | null
+export type ClientSession = { sessionId: string; user: { username: string; email: string } } | null

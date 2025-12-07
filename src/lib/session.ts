@@ -20,14 +20,8 @@ export const setSession = async (userId: string, isTemporary?: boolean) => {
 }
 
 export const getSession = async () => {
-  console.log('get session fn runs')
   await new Promise((res) => setTimeout(res, 8000))
-
   const sessionId = await getCookie(SESSION_COOKIE_KEY)
-  console.log('get session fn ends')
-
-  if (!!true) return { user: { email: 'menard@gmasd.co', username: 'menard' } }
-
   if (!sessionId) return null
 
   const redisSession = await redis.get(`session:${sessionId}`)

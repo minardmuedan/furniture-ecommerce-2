@@ -9,4 +9,4 @@ export type ClientToServerEvents = {
   'join-room': Fn<[roomId: string]>
 }
 
-export type SocketData = { sessionId?: string }
+export type SocketData = { sessionId: string }
