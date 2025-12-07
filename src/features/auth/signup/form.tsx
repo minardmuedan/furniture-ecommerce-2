@@ -9,19 +9,9 @@ import { useServerAction } from '@/hooks/server-action'
 import { typedObjectEntries } from '@/lib/utils'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Controller, useForm } from 'react-hook-form'
+import { signupSchema } from '../schema'
 import { signupAction } from './action'
-import { signupSchema } from './schema'
-
-const formFields = [
-  { name: 'username', title: 'Username', inputProps: { type: 'text', placeholder: 'username123', autoComplete: 'username' } },
-  { name: 'email', title: 'Email', inputProps: { type: 'email', placeholder: 'minard@example.com' } },
-  { name: 'password', title: 'Password', inputProps: { type: 'password', placeholder: '********', autoComplete: 'off' } },
-  {
-    name: 'confirmPassword',
-    title: 'Confirm Password',
-    inputProps: { type: 'password', placeholder: '********', autoComplete: 'off' },
-  },
-] as const
+import { signupFormFields } from './form-fields'
 
 export default function SignupCardForm() {
   const form = useForm({
@@ -32,8 +22,10 @@ export default function SignupCardForm() {
   const action = useServerAction(signupAction, {
     rateLimitKey: 'signup',
     onError: (err) => form.setError('root', { message: err.message }),
-    onFieldError: (fields) => typedObjectEntries(fields).map(([key, error]) => form.setError(key, { message: error[0] })),
-    onSuccess: () => localStorage.setItem('resend-email-verification', (Date.now() + 30_000).toString()),
+    onFieldError: (fields) =>
+      typedObjectEntries(fields).map(([key, error]) => {
+        form.setError(key, { message: error[0] }, { shouldFocus: true })
+      }),
   })
 
   return (
@@ -47,7 +39,7 @@ export default function SignupCardForm() {
         <form id="signup-form" onSubmit={form.handleSubmit(action.execute)} className="space-y-6">
           <FormError error={form.formState.errors.root?.message} />
 
-          {formFields.map((formField) => (
+          {signupFormFields.map((formField) => (
             <FieldGroup key={formField.name}>
               <Controller
                 disabled={action.rateLimiter.isLimit}
@@ -67,6 +59,7 @@ export default function SignupCardForm() {
           ))}
         </form>
       </CardContent>
+
       <CardFooter className="relative flex-col">
         <Button
           type="submit"

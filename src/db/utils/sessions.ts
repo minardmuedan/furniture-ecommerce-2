@@ -10,7 +10,11 @@ export const getSessionDb = async (id: string) =>
     where: (session) => eq(session.id, id),
   })
 
-export const updateSessionDb = async (sessionId: string, values: Partial<Pick<typeof sessionsTable.$inferInsert, 'expiresAt'>>) =>
-  await db.update(sessionsTable).set(values).where(eq(sessionsTable.id, sessionId))
+export const updateSessionDb = async (
+  sessionId: string,
+  values: Partial<Pick<typeof sessionsTable.$inferInsert, 'expiresAt' | 'logoutedAt'>>,
+) => await db.update(sessionsTable).set(values).where(eq(sessionsTable.id, sessionId))
+
+export const deleteUserSessionsDb = async (userId: string) => await db.delete(sessionsTable).where(eq(sessionsTable.userId, userId))
 
 export const deleteSessionDb = async (id: string) => await db.delete(sessionsTable).where(eq(sessionsTable.id, id))

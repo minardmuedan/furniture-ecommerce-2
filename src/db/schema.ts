@@ -20,6 +20,7 @@ export const sessionsTable = pgTable('sessions', {
   userAgent: varchar('user_agent'),
   createdAt: timestamp('created_at').notNull().defaultNow(),
   expiresAt: timestamp('expires_at').notNull(),
+  logoutedAt: timestamp('logouted_at'),
 })
 
 export const sessionsRelations = relations(sessionsTable, ({ one }) => ({

@@ -1,7 +1,7 @@
 import type { RedisPubSubSchema, RedisSchema } from '@/types/redis'
 import { createClient, type SetOptions } from 'redis'
 
-const redisInstance = createClient()
+const redisInstance = createClient({ url: process.env.REDIS_URL })
 
 async function ensureConnected() {
   if (!redisInstance.isOpen) await redisInstance.connect()

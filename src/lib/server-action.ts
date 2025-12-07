@@ -42,7 +42,7 @@ export function createServerAction<TSchema extends z.ZodObject>(schema?: TSchema
       return {
         handle: <R>(serverActionFn: (fields?: Fields, throwFieldError?: ThrowFieldErrorFn<Fields>) => Promise<R>) => {
           return async (inputs?: unknown): Promise<ServerAction<R, Fields>> => {
-            const limiter = await rateLimiter({ key: init.key, ip: await getIpAddress(true) })
+            const limiter = await rateLimiter({ key: init.key, ip: await getIpAddress({ throwWhenNull: true }) })
             if (limiter.isExceed) return { isError: true, type: 'rate_limit', ratelimit: { refillAt: limiter.refillAt } }
 
             const actionData = await _action()

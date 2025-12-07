@@ -3,7 +3,6 @@ import { useEffect, useState } from 'react'
 import { useCountDown } from './countdown'
 import { useRouter } from 'next/navigation'
 import type { Route } from 'next'
-import type { NavigateOptions } from 'next/dist/shared/lib/app-router-context.shared-runtime'
 
 type AppRouterType = {
   push(href: Route): void
