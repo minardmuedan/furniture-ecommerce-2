@@ -3,13 +3,24 @@ import type { ClientToServerEvents, ServerToClientEvents, SocketData } from '@/t
 import 'dotenv/config'
 import { Server, type DefaultEventsMap } from 'socket.io'
 
+const redis = await redisSubscriberConnect()
+await redis.subscribe({
+  EMAIL_VERIFICATION_CHANNEL: ({ sessionId, message }) => {
+    io.to(`session:${sessionId}`).emit('email-verified', { message })
+  },
+
+  INVOKE_SESSION_CHANNEL: ({ sessionId, message }) => {
+    io.to(`session:${sessionId}`).emit('invoke-session', { message })
+  },
+})
+
 const io = new Server<ClientToServerEvents, ServerToClientEvents, DefaultEventsMap, SocketData>(4000, {
-  cors: { origin: process.env.NEXT_PUBLIC_BASE_URL!, credentials: true },
+  cors: { origin: process.env.NEXT_PUBLIC_BASE_URL },
 })
 
 io.use(async (socket, next) => {
   const { sessionId } = socket.handshake.auth
-  if (!sessionId) return next(new Error('no session id'))
+  if (!sessionId) return next(new Error('No valid session id'))
 
   socket.data.sessionId = sessionId
   next()
@@ -30,14 +41,3 @@ io.on('connection', async (socket) => {
 })
 
 console.log('🚀 Socket server running on http://localhost:4000')
-
-const redis = await redisSubscriberConnect()
-await redis.subscribe({
-  EMAIL_VERIFICATION_CHANNEL: ({ sessionId, message }) => {
-    io.to(`session:${sessionId}`).emit('email-verified', { message })
-  },
-
-  INVOKE_SESSION_CHANNEL: ({ sessionId, message }) => {
-    io.to(`session:${sessionId}`).emit('invoke-session', { message })
-  },
-})

@@ -2,7 +2,6 @@
 
 import type { ClientSession } from '@/types/session'
 import { createContext, useContext, useEffect, useState, type Dispatch, type SetStateAction } from 'react'
-import { socket } from '@/socket-io/socket-client'
 
 type SessionContextType = {
   session: ClientSession
@@ -37,7 +36,6 @@ export function SessionProvider({ sessionUserPromise, children }: SessionProvide
       setIsInitializing(false)
       setIsPending(false)
     })
-    socket.on('connect', () => console.log('ewa'))
   }, [sessionUserPromise])
 
   return (
