@@ -6,7 +6,7 @@ export type RedisSchema = {
     token: string
     expiresAt: number
   }
-  [key: `session:${string}`]: Session | null
+  [key: `session:${string}`]: { session: Session | null }
 }
 
 export type RedisPubSubSchema = {

@@ -16,5 +16,3 @@ export const updateSessionDb = async (
 ) => await db.update(sessionsTable).set(values).where(eq(sessionsTable.id, sessionId))
 
 export const deleteUserSessionsDb = async (userId: string) => await db.delete(sessionsTable).where(eq(sessionsTable.userId, userId))
-
-export const deleteSessionDb = async (id: string) => await db.delete(sessionsTable).where(eq(sessionsTable.id, id))

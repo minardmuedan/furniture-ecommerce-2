@@ -1,12 +1,22 @@
 'use client'
 
 import { Button } from '@/components/ui/button'
-import { createSocket } from '@/socket-io/socket-client'
+import { useSession } from './session-provider'
 
 export default function Homepage() {
+  const session = useSession()
+
   return (
     <div>
-      <Button onClick={() => createSocket(`${Date.now()}`, () => console.log('rewanewaewae'))}>Create Socket</Button>
+      {JSON.stringify({ session })}
+
+      <Button
+        onClick={() => {
+          session.optimisticallyUpdateSession({ sessionId: '123', user: { email: 'asd', username: 'asd' } })
+        }}
+      >
+        Set session
+      </Button>
     </div>
   )
 }

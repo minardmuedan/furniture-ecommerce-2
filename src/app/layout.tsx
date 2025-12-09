@@ -4,7 +4,6 @@ import type { Metadata } from 'next'
 import LocalFont from 'next/font/local'
 import './globals.css'
 import { SessionProvider } from './session-provider'
-import { getSession } from '@/lib/session'
 
 const roboto_serif = LocalFont({
   src: '../../public/fonts/roboto-serif-latin-normal.woff2',
@@ -16,14 +15,10 @@ export const metadata: Metadata = {
 }
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  const sessionUserPromise = getSession().then((session) =>
-    session ? { sessionId: session.id, user: { username: session.user.username, email: session.user.email } } : null,
-  )
-
   return (
     <html lang="en">
       <body className={`${roboto_serif.className} antialiased`}>
-        <SessionProvider sessionUserPromise={sessionUserPromise}>
+        <SessionProvider>
           <Toaster richColors position="top-right" />
           <Navbar />
           <main>{children}</main>
