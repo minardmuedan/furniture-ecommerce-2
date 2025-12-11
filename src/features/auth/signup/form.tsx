@@ -5,15 +5,18 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import FormError from '@/components/ui/error'
 import { Field, FieldError, FieldGroup, FieldLabel } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
-import { useServerAction } from '@/hooks/server-action'
+import { setRatelimit, useServerAction } from '@/hooks/server-action'
 import { typedObjectEntries } from '@/lib/utils'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { signupSchema } from '../schema'
 import { signupAction } from './action'
 import { signupFormFields } from './form-fields'
 
-export default function SignupCardForm() {
+export default function SignupCardForm({ initialFormError }: { initialFormError?: string }) {
+  const [formError, setFormError] = useState(initialFormError)
+
   const form = useForm({
     resolver: zodResolver(signupSchema),
     defaultValues: { username: '', email: '', password: '', confirmPassword: '' },
@@ -21,11 +24,11 @@ export default function SignupCardForm() {
 
   const action = useServerAction(signupAction, {
     rateLimitKey: 'signup',
-    onError: (err) => form.setError('root', { message: err.message }),
-    onFieldError: (fields) =>
-      typedObjectEntries(fields).map(([key, error]) => {
-        form.setError(key, { message: error[0] }, { shouldFocus: true })
-      }),
+    onFieldError: (fields) => {
+      typedObjectEntries(fields).map(([key, error]) => form.setError(key, { message: error[0] }, { shouldFocus: true }))
+    },
+    onError: (err) => setFormError(err.message),
+    onSuccess: () => setRatelimit('resend-email-verification', 30),
   })
 
   return (
@@ -36,8 +39,15 @@ export default function SignupCardForm() {
       </CardHeader>
 
       <CardContent>
-        <form id="signup-form" onSubmit={form.handleSubmit(action.execute)} className="space-y-6">
-          <FormError error={form.formState.errors.root?.message} />
+        <form
+          id="signup-form"
+          onSubmit={() => {
+            setFormError(undefined)
+            form.handleSubmit(() => action.execute)
+          }}
+          className="space-y-6"
+        >
+          <FormError error={formError} />
 
           {signupFormFields.map((formField) => (
             <FieldGroup key={formField.name}>
@@ -63,11 +73,11 @@ export default function SignupCardForm() {
       <CardFooter className="relative flex-col">
         <Button
           type="submit"
-          disabled={!form.formState.isReady || action.isPending || action.rateLimiter.isLimit}
+          disabled={!action.isHydrated || action.isPending || action.rateLimiter.isLimit}
           form="signup-form"
           className="z-10 w-full"
         >
-          {action.rateLimiter.isLimit ? `Continue after ${action.rateLimiter.remainingSeconds} second/s` : 'Continue'}
+          {action.rateLimiter.isLimit ? `Continue after ${action.rateLimiter.secondsLeft} second/s` : 'Continue'}
         </Button>
       </CardFooter>
     </Card>

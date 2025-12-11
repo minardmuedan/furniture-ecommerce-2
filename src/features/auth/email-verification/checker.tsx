@@ -1,78 +1,65 @@
 'use client'
 
 import SignupLoading from '@/app/(auth)/signup/loading'
-import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
-import { useCountDown } from '@/hooks/countdown'
-import { createSocket } from '@/socket-io/socket-client'
-import { Clock, Mailbox, Send, Undo2, Unplug } from 'lucide-react'
+import { useCountdown } from '@/hooks/countdown'
+import { socketStore } from '@/lib/zustand-store/socket'
+import { Clock, Mailbox, Unplug } from 'lucide-react'
 import { useRouter } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import { toast } from 'sonner'
-import { resendEmailVerificationAction } from './resend-action'
+import { useStore } from 'zustand'
+import CancelEmailVerificationButton from './action-buttons/cancel-button'
+import ResendEmailVerificationButton from './action-buttons/resend-button'
+import { sessionStore } from '@/lib/zustand-store/session'
 
-export default function EmailVerificationCheckerCard({
-  sessionId,
-  expiresAt,
-  email,
-}: {
-  sessionId: string
-  expiresAt: number
-  email: string
-}) {
+type Props = { sessionId: string; expiresAt: number; email: string }
+
+export default function EmailVerificationCheckerCard({ sessionId, expiresAt, email }: Props) {
   const router = useRouter()
-  const [isConnecting, setIsConnecting] = useState(true)
-  const [isReconnectFailed, setIsReconnectFailed] = useState(false)
-  const { timeLeft, setTimeLeft } = useCountDown()
+  const isConnecting = useStore(socketStore, (s) => s.isConnecting)
+  const isReconnectFailed = useStore(socketStore, (s) => s.isReconnectFailed)
+  const { secondsLeft, setTargetDate } = useCountdown(expiresAt)
 
   useEffect(() => {
-    setTimeLeft(Math.ceil((expiresAt - Date.now()) / 1000))
-
+    setTargetDate(expiresAt)
     const timeoutId = setTimeout(() => {
+      socketStore.getState().disconnectSocket()
       router.refresh()
     }, expiresAt - Date.now())
 
-    const socket = createSocket(sessionId, {
-      onReconnectFailed: () => {
-        setIsConnecting(false)
-        setIsReconnectFailed(true)
-      },
-    })
+    const socket = socketStore.getState().connectSocket(sessionId)
 
-    socket.on('connect', () => {
-      setIsConnecting(false)
-      setIsReconnectFailed(false)
+    socket.on('email-verified', ({ message }) => {
+      toast.success(message)
+      sessionStore.getState().revalidateSession()
+      router.push('/')
     })
-    socket.on('disconnect', () => setIsConnecting(true))
 
     return () => {
-      clearTimeout(timeoutId)
+      socket.off('email-verified')
       toast.dismiss('socket')
-      socket.off('connect')
-      socket.disconnect()
+      clearTimeout(timeoutId)
     }
-  }, [])
+  }, [expiresAt])
 
-  if (isConnecting) return <SignupLoading />
+  if (isConnecting && !isReconnectFailed) return <SignupLoading />
 
   return (
     <Card className="w-10/12 border text-center sm:max-w-lg sm:text-start">
       <CardHeader>
-        <CardTitle
-          className={`flex items-center justify-center gap-2 text-xl sm:justify-start ${isReconnectFailed ? 'text-yellow-500' : ''}`}
-        >
-          {isReconnectFailed ? (
-            <>
-              <Unplug />
-              Not Connected
-            </>
-          ) : (
-            'Waiting for verification...'
-          )}
-        </CardTitle>
-        <CardDescription className="text-nowrap">
+        {isReconnectFailed ? (
+          <CardTitle className="flex items-center justify-center gap-2 text-xl text-yellow-500 sm:justify-start">
+            <Unplug />
+            <span>Not Connected</span>
+          </CardTitle>
+        ) : (
+          <CardTitle className="text-center text-xl sm:text-start">Waiting for verification...</CardTitle>
+        )}
+
+        <CardDescription>
           Please check your email inbox. <Clock className="inline size-4" />{' '}
-          {timeLeft > 60 ? `${Math.ceil(timeLeft / 60)} mins` : `${timeLeft} seconds`}
+          {secondsLeft > 60 ? `${Math.ceil(secondsLeft / 60)} minutes` : `${secondsLeft} seconds`}
         </CardDescription>
       </CardHeader>
 
@@ -82,13 +69,8 @@ export default function EmailVerificationCheckerCard({
       </CardContent>
 
       <CardFooter className="flex-col gap-2 *:w-full *:flex-1 sm:flex-row-reverse">
-        <Button onClick={() => resendEmailVerificationAction()}>
-          <Send /> Resend Verification
-        </Button>
-
-        <Button variant="outline">
-          <Undo2 /> Back to Signup
-        </Button>
+        <ResendEmailVerificationButton />
+        <CancelEmailVerificationButton />
       </CardFooter>
     </Card>
   )

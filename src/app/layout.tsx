@@ -1,9 +1,9 @@
+import InitializeSession from '@/components/initialize-session'
 import Navbar from '@/components/navbar'
 import { Toaster } from '@/components/ui/sonner'
 import type { Metadata } from 'next'
 import LocalFont from 'next/font/local'
 import './globals.css'
-import { SessionProvider } from './session-provider'
 
 const roboto_serif = LocalFont({
   src: '../../public/fonts/roboto-serif-latin-normal.woff2',
@@ -18,11 +18,11 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   return (
     <html lang="en">
       <body className={`${roboto_serif.className} antialiased`}>
-        <SessionProvider>
-          <Toaster richColors position="top-right" />
-          <Navbar />
-          <main>{children}</main>
-        </SessionProvider>
+        <InitializeSession />
+
+        <Toaster richColors position="top-right" />
+        <Navbar />
+        <main>{children}</main>
       </body>
     </html>
   )

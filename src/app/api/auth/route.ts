@@ -1,12 +1,12 @@
-import { getSession } from '@/lib/session'
+import { validateSession } from '@/lib/session'
 import type { ClientSession } from '@/types/session'
 import { NextResponse } from 'next/server'
 
 export async function GET(): Promise<NextResponse<ClientSession>> {
-  const sessionData = await getSession()
+  const sessionData = await validateSession()
 
   if (!sessionData) return NextResponse.json(null)
-  const { id, user } = sessionData
+  const { sessionId, user } = sessionData
 
-  return NextResponse.json({ sessionId: id, user: { username: user.username, email: user.email } })
+  return NextResponse.json({ sessionId, user: { username: user.username, email: user.email } })
 }

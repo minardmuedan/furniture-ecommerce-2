@@ -1,17 +1,30 @@
 import { useEffect, useState } from 'react'
 
-export const useCountDown = () => {
-  const [timeLeft, setTimeLeft] = useState(0)
+export const useCountdown = (initialDate?: Date | number) => {
+  const [targetDate, setTargetDate] = useState(initialDate)
+  const [secondsLeft, setSecondsLeft] = useState(0)
+
+  function calculateSecondsLeft() {
+    if (!targetDate) return 0
+    const difference = new Date(targetDate).getTime() - Date.now()
+    return difference <= 0 ? 0 : Math.floor(difference / 1000)
+  }
 
   useEffect(() => {
-    if (timeLeft <= 0) return
+    const newSecondsLeft = calculateSecondsLeft()
+    setSecondsLeft(newSecondsLeft)
+
+    if (newSecondsLeft <= 0) return
 
     const intervalId = setInterval(() => {
-      setTimeLeft((prevTimeLeft) => prevTimeLeft - 1)
+      const remaining = calculateSecondsLeft()
+      setSecondsLeft(remaining)
+
+      if (remaining <= 0) clearInterval(intervalId)
     }, 1000)
 
     return () => clearInterval(intervalId)
-  }, [timeLeft])
+  }, [targetDate])
 
-  return { timeLeft, setTimeLeft }
+  return { secondsLeft, setTargetDate }
 }

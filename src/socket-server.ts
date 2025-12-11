@@ -8,9 +8,8 @@ await redis.subscribe({
   EMAIL_VERIFICATION_CHANNEL: ({ sessionId, message }) => {
     io.to(`session:${sessionId}`).emit('email-verified', { message })
   },
-
-  INVOKE_SESSION_CHANNEL: ({ sessionId, message }) => {
-    io.to(`session:${sessionId}`).emit('invoke-session', { message })
+  INVALIDATE_SESSION_CHANNEL: ({ sessionId, message }) => {
+    io.to(`session:${sessionId}`).emit('invalidate-session', { message })
   },
 })
 

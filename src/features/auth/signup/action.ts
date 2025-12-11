@@ -5,7 +5,7 @@ import { createUserDb, getUserByEmailDb, updateUserDb } from '@/db/utils/users'
 import { setCookie } from '@/lib/headers'
 import { mailerSendEmailVerificationToken } from '@/lib/mailer'
 import { createServerAction } from '@/lib/server-action'
-import { setSession } from '@/lib/session'
+import { createSession } from '@/lib/session'
 import { generateSecureRandomString } from '@/lib/utils'
 import { hash } from 'bcryptjs'
 import { createVerificationToken } from '../helpers/token'
@@ -27,9 +27,9 @@ export const signupAction = createServerAction(signupSchema)
       await deleteUserSessionsDb(userId)
     } else await createUserDb({ id: userId, username, email, password: hashedPassword })
 
-    const sessionId = await setSession(userId, true)
+    const sessionId = await createSession(userId, true)
+    const { jwtToken } = await createVerificationToken('email', { sessionId, user: { id: userId, username, email } })
 
-    const { id: tokenId, jwtToken } = await createVerificationToken('email', { sessionId, user: { username, email } })
     await mailerSendEmailVerificationToken(email, jwtToken)
-    await setCookie('signup', tokenId, { maxAge: FIFTEEN_MINUTES_IN_SECONDS })
+    await setCookie('signup', email, { maxAge: FIFTEEN_MINUTES_IN_SECONDS })
   })

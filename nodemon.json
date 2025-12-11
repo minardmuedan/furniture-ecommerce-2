@@ -1,5 +1,5 @@
 {
   "watch": ["src/socket-io/server.ts", "src/lib/redis.ts", "src/lib/session/get_session.ts"],
-  "exec": "bun --bun src/socket-io/server.ts",
+  "exec": "bun --bun src/socket-server.ts",
   "ext": "js ts"
 }

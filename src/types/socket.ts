@@ -1,7 +1,9 @@
+import type { Socket } from 'socket.io-client'
+
 type Fn<I extends unknown[] = []> = (...args: I) => void
 
 export type ServerToClientEvents = {
-  'invoke-session': Fn<[{ message: string }]>
+  'invalidate-session': Fn<[{ message: string }]>
   'email-verified': Fn<[{ message: string }]>
 }
 
@@ -10,3 +12,5 @@ export type ClientToServerEvents = {
 }
 
 export type SocketData = { sessionId: string }
+
+export type ClientSocket = Socket<ServerToClientEvents, ClientToServerEvents>

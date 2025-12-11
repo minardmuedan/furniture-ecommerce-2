@@ -1,8 +1,8 @@
 import type { CustomErrorTypes, ServerAction } from '@/lib/server-action'
-import { useEffect, useState } from 'react'
-import { useCountDown } from './countdown'
-import { useRouter } from 'next/navigation'
 import type { Route } from 'next'
+import { useRouter } from 'next/navigation'
+import { useEffect, useState } from 'react'
+import { useCountdown } from './countdown'
 
 type AppRouterType = {
   push(href: Route): void
@@ -13,6 +13,7 @@ type AppRouterType = {
 }
 
 type OnErrorErrors = { type: CustomErrorTypes | 'server_error'; message: string }
+
 type InitNoInputs<R> = {
   rateLimitKey: string
   onSuccess?: (data: R, router: AppRouterType) => void
@@ -21,7 +22,7 @@ type InitNoInputs<R> = {
 }
 type Init<R, TFields> = InitNoInputs<R> & { onFieldError?: (errorFields: { [P in keyof TFields]?: string[] }) => void }
 
-type UseServerActionReturnType = { isPending: boolean; rateLimiter: { isLimit: boolean; remainingSeconds: number } }
+type UseServerActionReturnType = { isPending: boolean; isHydrated: boolean; rateLimiter: { isLimit: boolean; secondsLeft: number } }
 
 export function useServerAction<R>(
   serverAction: () => Promise<ServerAction<R, never>>,
@@ -38,18 +39,21 @@ export function useServerAction<R, TFields>(
   init: Init<R, TFields>,
 ) {
   const router = useRouter()
+  const [isHydrated, setIsHydrated] = useState(false)
   const [isPending, setIsPending] = useState(false)
-  const { timeLeft, setTimeLeft } = useCountDown()
+  const { secondsLeft, setTargetDate } = useCountdown()
 
   useEffect(() => {
-    const storedRateLimitSecondsLeft = getSecondsLeft(Number(localStorage.getItem(init.rateLimitKey)))
-    if (storedRateLimitSecondsLeft > 0) setTimeLeft(storedRateLimitSecondsLeft)
+    const storageRatelimitDate = Number(localStorage.getItem(init.rateLimitKey))
+    if (storageRatelimitDate > 0) setTargetDate(storageRatelimitDate)
     else localStorage.removeItem(init.rateLimitKey)
+    setIsHydrated(true)
   }, [])
 
   return {
+    isHydrated,
     isPending,
-    rateLimiter: { isLimit: timeLeft > 0, remainingSeconds: timeLeft },
+    rateLimiter: { isLimit: secondsLeft > 0, secondsLeft },
     execute: async (inputs: TFields) => {
       setIsPending(true)
       const actionData = await serverAction(inputs)
@@ -57,8 +61,8 @@ export function useServerAction<R, TFields>(
       setIsPending(false)
 
       if (actionData.ratelimit) {
+        setTargetDate(actionData.ratelimit.refillAt)
         localStorage.setItem(init.rateLimitKey, actionData.ratelimit.refillAt.toString())
-        setTimeLeft(getSecondsLeft(actionData.ratelimit.refillAt))
       }
 
       if (actionData.isError) {
@@ -79,4 +83,6 @@ export function useServerAction<R, TFields>(
   }
 }
 
-const getSecondsLeft = (retryAt: number) => Math.ceil((retryAt - Date.now()) / 1000)
+export const setRatelimit = (key: string, seconds: number) => {
+  localStorage.setItem(key, new Date(Date.now() + 1000 * seconds).getTime().toString())
+}

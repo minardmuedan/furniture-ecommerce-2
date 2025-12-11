@@ -3,16 +3,18 @@ import { getVerificationToken } from '@/features/auth/helpers/token'
 import SignupCardForm from '@/features/auth/signup/form'
 import { getCookie } from '@/lib/headers'
 
-export default async function SignupPage() {
-  try {
-    const tokenId = await getCookie('signup')
-    if (!tokenId) throw null
+const acceptedErrorMessages = ['Verification token not found!', 'Verification token not matched!', 'Verification token is expired!']
 
-    const tokenData = await getVerificationToken('email', tokenId)
-    return (
-      <EmailVerificationCheckerCard sessionId={tokenData.sessionId} expiresAt={tokenData.expiresAt} email={tokenData.user.email} />
-    )
+export default async function SignupPage({ searchParams }: PageProps<'/signup'>) {
+  const { error } = await searchParams
+  const initialFormError = typeof error === 'string' && acceptedErrorMessages.includes(error) ? error : undefined
+
+  try {
+    const email = await getCookie('signup')
+    if (!email) throw null
+    const { sessionId, expiresAt } = await getVerificationToken('email', email)
+    return <EmailVerificationCheckerCard sessionId={sessionId} expiresAt={expiresAt} email={email} />
   } catch {
-    return <SignupCardForm />
+    return <SignupCardForm initialFormError={error ? initialFormError : undefined} />
   }
 }

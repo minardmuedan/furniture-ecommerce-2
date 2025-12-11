@@ -75,7 +75,7 @@ function throwFieldZodError<TFields>(fields: Partial<Record<keyof TFields, strin
   throw new z.ZodError(typedObjectEntries(fields).map(([key, value]) => ({ code: 'custom' as const, path: [key], message: value })))
 }
 
-export type CustomErrorTypes = 'not_found' | 'expired' | 'unauthorized' | 'forbidden'
+export type CustomErrorTypes = 'not_found' | 'not_matched' | 'expired' | 'unauthorized' | 'forbidden'
 export class CustomError {
   isError = true as const
   type: CustomErrorTypes

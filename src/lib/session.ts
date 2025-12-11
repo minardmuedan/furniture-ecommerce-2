@@ -1,36 +1,37 @@
 import { createSessionDb, getSessionDb, updateSessionDb } from '@/db/utils/sessions'
-import { DAY_IN_MS, FIFTEEN_MINUTES_IN_MS, FIFTEEN_MINUTES_IN_SECONDS, MONTH_IN_MS, MONTH_IN_SECONDS } from './data-const'
+import { DAY_IN_MS, THIRTY_MINUTES_IN_MS, WEEK_IN_MS, WEEK_IN_SECONDS } from './data-const'
 import { deleteCookie, getCookie, getIpAddress, getUserAgent, setCookie } from './headers'
 import { redis } from './redis'
 import { generateSecureRandomString } from './utils'
 
 export const SESSION_COOKIE_KEY = 'session'
 
-export const setSession = async (userId: string, isTemporary?: boolean) => {
-  const id = generateSecureRandomString()
+export const createSession = async (userId: string, temporaryOnly?: boolean) => {
   const now = Date.now()
+
+  const id = generateSecureRandomString()
   const ipAddress = await getIpAddress({ throwWhenNull: true })
   const userAgent = await getUserAgent()
 
-  const expiresAt = new Date(isTemporary ? now + FIFTEEN_MINUTES_IN_MS * 2 : now + MONTH_IN_MS)
-  await createSessionDb({ id, userId, ipAddress, userAgent, expiresAt })
-  await redis.set(`session:${id}`, { session: null }, { expiration: { type: 'EX', value: FIFTEEN_MINUTES_IN_SECONDS * 2 } })
+  const ageInMs = temporaryOnly ? THIRTY_MINUTES_IN_MS : WEEK_IN_MS
+  const expiresAt = new Date(now + ageInMs)
 
-  const coookieMaxAge = isTemporary ? FIFTEEN_MINUTES_IN_SECONDS * 2 : MONTH_IN_SECONDS
-  await setCookie(SESSION_COOKIE_KEY, id, { maxAge: coookieMaxAge })
+  await createSessionDb({ id, userId, ipAddress, userAgent, expiresAt })
+
+  await setCookie(SESSION_COOKIE_KEY, id, { maxAge: ageInMs / 1000 })
   return id
 }
 
-export const getSession = async () => {
+export const validateSession = async () => {
   const sessionId = await getCookie(SESSION_COOKIE_KEY)
   if (!sessionId) return null
 
-  const redisSession = await redis.get(`session:${sessionId}`)
-  if (redisSession) return redisSession.session
+  const redisSession = await redis.get(`session:${sessionId}`).catch(() => null)
+  if (redisSession) return redisSession
 
   const dbSession = await getSessionDb(sessionId)
-  if (!dbSession || !dbSession.user.emailVerified || dbSession.logoutedAt) {
-    redis.set(`session:${sessionId}`, { session: null }, { expiration: { type: 'EX', value: FIFTEEN_MINUTES_IN_SECONDS } })
+  if (!dbSession || dbSession.logoutedAt || !dbSession.user.emailVerified) {
+    if (!dbSession || dbSession.logoutedAt) await deleteCookie(SESSION_COOKIE_KEY).catch(() => {})
     return null
   }
 
@@ -40,21 +41,25 @@ export const getSession = async () => {
   if (now > sessionExpiresAt) {
     await updateSessionDb(sessionId, { logoutedAt: new Date() })
     await deleteCookie(SESSION_COOKIE_KEY).catch(() => {})
+    return null
   }
 
-  const isPastHalfMonth = now > sessionExpiresAt - MONTH_IN_MS / 2
-  if (isPastHalfMonth) {
-    await updateSessionDb(sessionId, { expiresAt: new Date(now + MONTH_IN_MS) })
-    await setCookie(SESSION_COOKIE_KEY, sessionId, { maxAge: MONTH_IN_SECONDS }).catch(() => {})
+  const isPastHalfWeek = now > sessionExpiresAt - WEEK_IN_MS / 2
+  if (isPastHalfWeek) {
+    const newExpiresAt = new Date(now + WEEK_IN_MS)
+    await updateSessionDb(sessionId, { expiresAt: newExpiresAt })
+    await setCookie(SESSION_COOKIE_KEY, sessionId, { maxAge: WEEK_IN_SECONDS }).catch(() => {})
+    console.log(`Session ${sessionId} refreshed for user ${dbSession.userId}`)
   }
 
-  await redis.set(`session:${sessionId}`, { session: dbSession }, { expiration: { type: 'PX', value: DAY_IN_MS } })
-  return dbSession
+  const clientSession = { sessionId: dbSession.id, user: { username: dbSession.user.username, email: dbSession.user.email } }
+  await redis.set(`session:${sessionId}`, clientSession, { expiration: { type: 'PX', value: DAY_IN_MS } })
+  return clientSession
 }
 
-export const deleteSession = async () => {
+export const invalidateSession = async () => {
   const sessionId = await getCookie(SESSION_COOKIE_KEY)
   if (sessionId) await updateSessionDb(sessionId, { logoutedAt: new Date() })
-  await redis.del(`session:${sessionId}`)
+  await redis.del(`session:${sessionId}`).catch(() => {})
   await deleteCookie(SESSION_COOKIE_KEY)
 }

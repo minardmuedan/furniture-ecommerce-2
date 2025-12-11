@@ -1,17 +1,18 @@
 'use client'
 
-import { useSession } from '@/app/session-provider'
 import Link from 'next/link'
 import { ButtonLink } from './ui/button'
+import { sessionStore } from '@/lib/zustand-store/session'
+import { useStore } from 'zustand'
 
 export default function Navbar() {
-  const { isInitializing, isPending, session } = useSession()
+  const isInitializing = useStore(sessionStore, (s) => s.isInitializing)
+  const isPending = useStore(sessionStore, (s) => s.isPending)
+  const session = useStore(sessionStore, (s) => s.session)
 
   return (
     <header className="flex h-14 items-center justify-between border-b px-5">
       <Link href="/">Home</Link>
-
-      <p>{JSON.stringify(isPending)}</p>
 
       {isInitializing ? (
         <p>initializing session...</p>
