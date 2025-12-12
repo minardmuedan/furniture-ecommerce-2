@@ -1,7 +1,7 @@
 'use server'
 
 import { updateUserDb } from '@/db/utils/users'
-import { createVerificationToken, deleteVerificationToken, getVerificationToken, verifyVerificationToken } from '@/lib/auth-token'
+import { createEmailVerificationToken, deleteVerificationToken, getVerificationToken, verifyVerificationToken } from '@/lib/auth-token'
 import { FIFTEEN_MINUTES_IN_SECONDS } from '@/lib/data-const'
 import { deleteCookie, getCookie, setCookie } from '@/lib/headers'
 import { mailerSendEmailVerificationToken } from '@/lib/mailer'
@@ -40,7 +40,7 @@ export const resendEmailVerificationAction = createServerAction()
 
     const { sessionId, user } = await getVerificationToken('email', email)
 
-    const { jwtToken } = await createVerificationToken('email', { sessionId, user })
+    const { jwtToken } = await createEmailVerificationToken({ sessionId, user })
     await mailerSendEmailVerificationToken(user.email, jwtToken)
     await setCookie('signup', email, { maxAge: FIFTEEN_MINUTES_IN_SECONDS })
   })
