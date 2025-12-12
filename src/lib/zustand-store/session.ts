@@ -11,6 +11,7 @@ type SessionStore = {
   fetchSession: () => Promise<unknown>
   revalidateSession: () => Promise<void>
   optimisticallyUpdateSession: (newSession: ClientSession) => void
+  invalidateSession: () => void
 }
 
 export const sessionStore = createStore<SessionStore>((set, get) => ({
@@ -36,5 +37,9 @@ export const sessionStore = createStore<SessionStore>((set, get) => ({
   optimisticallyUpdateSession: (newSession) => {
     set({ session: newSession })
     get().fetchSession()
+  },
+  invalidateSession: () => {
+    set({ session: null })
+    socketStore.getState().disconnectSocket()
   },
 }))

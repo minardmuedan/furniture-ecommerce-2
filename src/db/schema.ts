@@ -1,15 +1,21 @@
 import { relations } from 'drizzle-orm'
-import { pgTable, timestamp, varchar } from 'drizzle-orm/pg-core'
+import { pgTable, timestamp, uniqueIndex, varchar } from 'drizzle-orm/pg-core'
 
-export const usersTable = pgTable('users', {
-  id: varchar().primaryKey(),
-  username: varchar().notNull(),
-  email: varchar().unique().notNull(),
-  emailVerified: timestamp('email_verified'),
-  password: varchar().notNull(),
-  createdAt: timestamp('created_at').notNull().defaultNow(),
-  updatedAt: timestamp('updated_at').notNull().defaultNow(),
-})
+export const usersTable = pgTable(
+  'users',
+  {
+    id: varchar().primaryKey(),
+    username: varchar().notNull(),
+    email: varchar().notNull(),
+    emailVerified: timestamp('email_verified'),
+    password: varchar().notNull(),
+    createdAt: timestamp('created_at').notNull().defaultNow(),
+    updatedAt: timestamp('updated_at').notNull().defaultNow(),
+  },
+  (table) => [uniqueIndex('email_idx').on(table.email)],
+)
+
+export const userRelations = relations(usersTable, ({ many }) => ({ sessions: many(sessionsTable) }))
 
 export const sessionsTable = pgTable('sessions', {
   id: varchar().primaryKey(),
@@ -23,6 +29,6 @@ export const sessionsTable = pgTable('sessions', {
   logoutedAt: timestamp('logouted_at'),
 })
 
-export const sessionsRelations = relations(sessionsTable, ({ one }) => ({
+export const sessionRelations = relations(sessionsTable, ({ one }) => ({
   user: one(usersTable, { fields: [sessionsTable.userId], references: [usersTable.id] }),
 }))

@@ -1,5 +1,5 @@
 import VerifyEmailButton from '@/features/auth/email-verification/action-buttons/verify-button'
-import { getVerificationToken, verifyVerificationToken } from '@/features/auth/helpers/token'
+import { getVerificationToken, verifyVerificationToken } from '@/lib/auth-token'
 import { redis } from '@/lib/redis'
 import { CustomError } from '@/lib/server-action'
 import { notFound, redirect } from 'next/navigation'

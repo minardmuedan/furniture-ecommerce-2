@@ -1,18 +1,19 @@
 'use client'
 
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
+import PlantLogo from '@/components/plant-logo'
+import { Button, ButtonLink } from '@/components/ui/button'
+import { Card, CardAction, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import FormError from '@/components/ui/error'
 import { Field, FieldError, FieldGroup, FieldLabel } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
 import { setRatelimit, useServerAction } from '@/hooks/server-action'
 import { typedObjectEntries } from '@/lib/utils'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { ArrowRight } from 'lucide-react'
 import { useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { signupSchema } from '../schema'
-import { signupAction } from './action'
-import { signupFormFields } from './form-fields'
+import { signupAction } from './signup-action'
 
 export default function SignupCardForm({ initialFormError }: { initialFormError?: string }) {
   const [formError, setFormError] = useState(initialFormError)
@@ -31,22 +32,30 @@ export default function SignupCardForm({ initialFormError }: { initialFormError?
     onSuccess: () => setRatelimit('resend-email-verification', 30),
   })
 
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    setFormError(undefined)
+    form.handleSubmit(action.execute)(e)
+  }
+
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Create an acccount </CardTitle>
+        <CardTitle className="flex items-end gap-2">
+          <PlantLogo />
+          Create an acccount
+        </CardTitle>
         <CardDescription>Fill up the required fields to continue</CardDescription>
+        <CardAction>
+          <ButtonLink href="/login" variant="link" className="group">
+            Login
+            <ArrowRight className="transition-transform group-hover:translate-x-1" />
+          </ButtonLink>
+        </CardAction>
       </CardHeader>
 
       <CardContent>
-        <form
-          id="signup-form"
-          onSubmit={() => {
-            setFormError(undefined)
-            form.handleSubmit(() => action.execute)
-          }}
-          className="space-y-6"
-        >
+        <form id="signup-form" onSubmit={handleSubmit} className="space-y-6">
           <FormError error={formError} />
 
           {signupFormFields.map((formField) => (
@@ -75,7 +84,7 @@ export default function SignupCardForm({ initialFormError }: { initialFormError?
           type="submit"
           disabled={!action.isHydrated || action.isPending || action.rateLimiter.isLimit}
           form="signup-form"
-          className="z-10 w-full"
+          className="w-full"
         >
           {action.rateLimiter.isLimit ? `Continue after ${action.rateLimiter.secondsLeft} second/s` : 'Continue'}
         </Button>
@@ -83,3 +92,14 @@ export default function SignupCardForm({ initialFormError }: { initialFormError?
     </Card>
   )
 }
+
+const signupFormFields = [
+  { name: 'username', title: 'Username', inputProps: { type: 'text', placeholder: 'username123', autoComplete: 'username' } },
+  { name: 'email', title: 'Email', inputProps: { type: 'email', placeholder: 'minard@example.com' } },
+  { name: 'password', title: 'Password', inputProps: { type: 'password', placeholder: '********', autoComplete: 'off' } },
+  {
+    name: 'confirmPassword',
+    title: 'Confirm Password',
+    inputProps: { type: 'password', placeholder: '********', autoComplete: 'off' },
+  },
+] as const

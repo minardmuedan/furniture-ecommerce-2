@@ -11,7 +11,7 @@ export default function CancelEmailVerificationButton() {
 
   return (
     <form action={action}>
-      <Button disabled={isPending} type="submit" variant="outline" className="w-full">
+      <Button disabled={isPending} type="submit" variant="secondary" className="w-full">
         {isPending ? <Spinner /> : <Undo2 />} Back to Signup
       </Button>
     </form>

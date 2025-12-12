@@ -2,15 +2,15 @@
 
 import { deleteUserSessionsDb } from '@/db/utils/sessions'
 import { createUserDb, getUserByEmailDb, updateUserDb } from '@/db/utils/users'
+import { createVerificationToken } from '@/lib/auth-token'
+import { FIFTEEN_MINUTES_IN_SECONDS } from '@/lib/data-const'
 import { setCookie } from '@/lib/headers'
 import { mailerSendEmailVerificationToken } from '@/lib/mailer'
 import { createServerAction } from '@/lib/server-action'
 import { createSession } from '@/lib/session'
 import { generateSecureRandomString } from '@/lib/utils'
 import { hash } from 'bcryptjs'
-import { createVerificationToken } from '../helpers/token'
 import { signupSchema } from '../schema'
-import { FIFTEEN_MINUTES_IN_SECONDS } from '@/lib/data-const'
 
 export const signupAction = createServerAction(signupSchema)
   .ratelimit({ key: 'signup', capacity: 5, refillRate: 5, refillPerSeconds: 30 })

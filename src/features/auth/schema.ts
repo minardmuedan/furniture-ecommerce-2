@@ -20,4 +20,4 @@ export const signupSchema = z
 
 export const jwtTokenSchema = z.object({ jwtToken: z.string() })
 
-export type Signup = z.infer<typeof signupSchema>
+export const loginSchema = z.object({ email: emailSchema, password: z.string().min(1, 'Password is required') })

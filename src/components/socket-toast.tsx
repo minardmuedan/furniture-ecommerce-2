@@ -8,7 +8,7 @@ function CustomToastContainer(props: { children: React.ReactNode; className?: st
   return (
     <div
       className={cn(
-        "flex w-fit items-center gap-2 justify-self-end rounded-md border px-4 py-3 text-sm font-medium shadow-sm [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+        "flex w-fit items-center gap-2 justify-self-end rounded-md border px-4 py-3 text-sm font-normal shadow-sm [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
         props.className,
       )}
     >

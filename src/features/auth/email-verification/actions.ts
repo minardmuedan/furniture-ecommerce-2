@@ -1,18 +1,19 @@
 'use server'
 
 import { updateUserDb } from '@/db/utils/users'
+import { createVerificationToken, deleteVerificationToken, getVerificationToken, verifyVerificationToken } from '@/lib/auth-token'
 import { FIFTEEN_MINUTES_IN_SECONDS } from '@/lib/data-const'
 import { deleteCookie, getCookie, setCookie } from '@/lib/headers'
 import { mailerSendEmailVerificationToken } from '@/lib/mailer'
-import { createServerAction, CustomError } from '@/lib/server-action'
-import { createVerificationToken, deleteVerificationToken, getVerificationToken, verifyVerificationToken } from '../helpers/token'
-import { jwtTokenSchema } from '../schema'
-import { SESSION_COOKIE_KEY } from '@/lib/session'
 import { redis } from '@/lib/redis'
+import { createServerAction, CustomError } from '@/lib/server-action'
+import { SESSION_COOKIE_KEY } from '@/lib/session'
+import type { Route } from 'next'
+import { jwtTokenSchema } from '../schema'
 
 export const verifyEmailAction = createServerAction(jwtTokenSchema)
   .ratelimit({ key: 'verify-email', capacity: 100, refillRate: 1, refillPerSeconds: 30 })
-  .handle(async ({ jwtToken }) => {
+  .handle<{ message: string; redirectTo: Route }>(async ({ jwtToken }) => {
     const { email, token } = await verifyVerificationToken(jwtToken)
     const { sessionId, user } = await getVerificationToken('email', email, token)
 
@@ -27,7 +28,7 @@ export const verifyEmailAction = createServerAction(jwtTokenSchema)
     const isSameDevice = (await getCookie(SESSION_COOKIE_KEY)) === sessionId
     return {
       message: isSameDevice ? authedMessage : 'Email Verified Successfully! Try to login',
-      redirectTo: isSameDevice ? ('/login' as const) : undefined,
+      redirectTo: !isSameDevice ? '/login' : '/',
     }
   })
 

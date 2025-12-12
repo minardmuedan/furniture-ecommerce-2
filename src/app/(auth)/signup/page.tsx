@@ -1,6 +1,6 @@
 import EmailVerificationCheckerCard from '@/features/auth/email-verification/checker'
-import { getVerificationToken } from '@/features/auth/helpers/token'
-import SignupCardForm from '@/features/auth/signup/form'
+import SignupCardForm from '@/features/auth/signup/signup-form'
+import { getVerificationToken } from '@/lib/auth-token'
 import { getCookie } from '@/lib/headers'
 
 const acceptedErrorMessages = ['Verification token not found!', 'Verification token not matched!', 'Verification token is expired!']
