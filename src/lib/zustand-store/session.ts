@@ -2,13 +2,12 @@ import { clientFetch } from '@/lib/cient-fetcher'
 import type { ClientSession } from '@/types/session'
 import { toast } from 'sonner'
 import { createStore } from 'zustand'
-import { socketStore } from './socket'
 
 type SessionStore = {
   isInitializing: boolean
   isPending: boolean
   session: ClientSession
-  fetchSession: () => Promise<unknown>
+  fetchSession: () => Promise<ClientSession>
   revalidateSession: () => Promise<void>
   optimisticallyUpdateSession: (newSession: ClientSession) => void
   invalidateSession: () => void
@@ -21,13 +20,14 @@ export const sessionStore = createStore<SessionStore>((set, get) => ({
   fetchSession: async () => {
     const result = await clientFetch<ClientSession>('/api/auth')
     set({ isInitializing: false })
+    if (result.isError) {
+      toast.error(result.message)
+      return null
+    }
 
-    if (result.isError) return toast.error(result.message)
-
-    const newSession = result.data
-    set({ session: newSession })
-
-    if (newSession) socketStore.getState().connectSocket(newSession.sessionId)
+    const session = result.data
+    set({ session })
+    return session
   },
   revalidateSession: async () => {
     set({ isPending: true })
@@ -38,8 +38,5 @@ export const sessionStore = createStore<SessionStore>((set, get) => ({
     set({ session: newSession })
     get().fetchSession()
   },
-  invalidateSession: () => {
-    set({ session: null })
-    socketStore.getState().disconnectSocket()
-  },
+  invalidateSession: () => set({ session: null }),
 }))

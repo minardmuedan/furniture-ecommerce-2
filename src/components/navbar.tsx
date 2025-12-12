@@ -1,12 +1,11 @@
 'use client'
 
-import Link from 'next/link'
-import { Button, ButtonLink } from './ui/button'
-import { sessionStore } from '@/lib/zustand-store/session'
-import { useStore } from 'zustand'
-import type { ClientSession } from '@/types/session'
-import { LogOut } from 'lucide-react'
 import LogoutButton from '@/features/auth/logout/logout-button'
+import { sessionStore } from '@/lib/zustand-store/session'
+import type { ClientSession } from '@/types/session'
+import Link from 'next/link'
+import { useStore } from 'zustand'
+import { ButtonLink } from './ui/button'
 
 export default function Navbar() {
   const isInitializing = useStore(sessionStore, (s) => s.isInitializing)

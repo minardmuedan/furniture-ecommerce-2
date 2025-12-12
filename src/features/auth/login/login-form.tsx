@@ -12,6 +12,9 @@ import { Controller, useForm } from 'react-hook-form'
 import { loginSchema } from '../schema'
 import { loginAction } from './login-action'
 import { ArrowLeft } from 'lucide-react'
+import { sessionStore } from '@/lib/zustand-store/session'
+import { socketStore } from '@/lib/zustand-store/socket'
+import { toast } from 'sonner'
 
 export default function LoginFormCard() {
   const form = useForm({ resolver: zodResolver(loginSchema), defaultValues: { email: '', password: '' } })
@@ -22,6 +25,13 @@ export default function LoginFormCard() {
       typedObjectEntries(fields).map(([key, error]) => form.setError(key, { message: error[0] }, { shouldFocus: true }))
     },
     onError: (err) => form.setError('root', { message: err.message }),
+    onSuccess: async ({ message }, router) => {
+      form.reset()
+      const session = await sessionStore.getState().fetchSession()
+      socketStore.getState().connectSocket(session!.sessionId, { router })
+      toast.success(message)
+      router.push('/')
+    },
   })
 
   return (

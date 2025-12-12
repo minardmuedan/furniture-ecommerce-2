@@ -6,6 +6,7 @@ import { LogOutIcon } from 'lucide-react'
 import { toast } from 'sonner'
 import { logoutAction } from './logout-action'
 import { sessionStore } from '@/lib/zustand-store/session'
+import { socketStore } from '@/lib/zustand-store/socket'
 
 type Props = Omit<React.ComponentProps<'button'>, 'onClick'> & VariantProps<typeof buttonVariants>
 
@@ -17,6 +18,7 @@ export default function LogoutButton({ variant, disabled, ...props }: Props) {
       toast.success('Logouted successfully, See you again!')
       router.push('/login')
       sessionStore.getState().invalidateSession()
+      socketStore.getState().disconnectSocket()
     },
     onSettled: () => sessionStore.getState().revalidateSession(),
   })

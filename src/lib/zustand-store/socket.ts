@@ -1,4 +1,5 @@
 import { dismissToast, reconnectAttemptToast, reconnectedToast, reconnectFailedToast } from '@/components/socket-toast'
+import type { AppRouter } from '@/types/app-router'
 import type { ClientSocket } from '@/types/socket'
 import { io } from 'socket.io-client'
 import { toast } from 'sonner'
@@ -8,20 +9,24 @@ import { sessionStore } from './session'
 type Socket = ClientSocket & { auth: { sessionId: string } }
 
 type SocketStore = {
-  isConnecting: boolean
   isConnected: boolean
   isReconnectFailed: boolean
   socket: Socket | null
-  connectSocket: (sessionId: string) => Socket
+  connectSocket: (
+    sessionId: string,
+    init: {
+      router: AppRouter
+      onEmailVerified?: (data: { message: string }) => void
+    },
+  ) => void
   disconnectSocket: () => void
 }
 
 export const socketStore = createStore<SocketStore>((set, get) => ({
-  isConnecting: false,
   isConnected: false,
   isReconnectFailed: false,
   socket: null,
-  connectSocket: (sessionId) => {
+  connectSocket: (sessionId, { router, onEmailVerified }) => {
     const existingSocket = get().socket
 
     if (get().isConnected && existingSocket) {
@@ -32,27 +37,25 @@ export const socketStore = createStore<SocketStore>((set, get) => ({
     const newSocket = io(process.env.NEXT_PUBLIC_SOCKET_URL, { auth: { sessionId }, reconnectionAttempts: 5 }) as Socket
 
     newSocket.io.on('reconnect', () => reconnectedToast())
-    newSocket.io.on('reconnect_attempt', (attempt) => {
-      set({ isConnecting: true })
-      reconnectAttemptToast(attempt, newSocket.io.opts.reconnectionAttempts)
-    })
+    newSocket.io.on('reconnect_attempt', (attempt) => reconnectAttemptToast(attempt, newSocket.io.opts.reconnectionAttempts))
     newSocket.io.on('reconnect_failed', () => {
-      set({ isReconnectFailed: true, isConnecting: false })
+      set({ isReconnectFailed: true })
       reconnectFailedToast()
     })
 
-    newSocket.on('connect', () => set({ isConnected: true, isConnecting: false, isReconnectFailed: false }))
+    newSocket.on('connect', () => set({ isConnected: true, isReconnectFailed: false }))
     newSocket.on('disconnect', () => set({ isConnected: false }))
 
     newSocket.on('invalidate-session', ({ message }) => {
       toast.error(message)
-
-      sessionStore.getState().revalidateSession()
+      sessionStore.getState().optimisticallyUpdateSession(null)
       get().disconnectSocket()
+      router.push('/login')
     })
 
-    set({ socket: newSocket, isConnecting: true })
-    return newSocket
+    if (onEmailVerified) newSocket.on('email-verified', onEmailVerified)
+
+    set({ socket: newSocket })
   },
   disconnectSocket: () => {
     dismissToast()
@@ -61,6 +64,6 @@ export const socketStore = createStore<SocketStore>((set, get) => ({
       socket.removeAllListeners()
       socket.disconnect()
     }
-    set({ socket: null, isConnected: false, isConnecting: false, isReconnectFailed: false })
+    set({ socket: null, isConnected: false, isReconnectFailed: false })
   },
 }))

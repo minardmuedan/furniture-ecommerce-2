@@ -3,22 +3,15 @@ import type { Route } from 'next'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { useCountdown } from './countdown'
-
-type AppRouterType = {
-  push(href: Route): void
-  replace(href: Route): void
-  prefetch(href: Route): void
-  back(): void
-  refresh(): void
-}
+import type { AppRouter } from '@/types/app-router'
 
 type OnErrorErrors = { type: CustomErrorTypes | 'server_error'; message: string }
 
 type InitNoInputs<R> = {
   rateLimitKey: string
-  onSuccess?: (data: R, router: AppRouterType) => void
-  onError?: (error: OnErrorErrors, router: AppRouterType) => void
-  onSettled?: (actionData: { success: true; data: R } | { success: false; error: OnErrorErrors }, router: AppRouterType) => void
+  onSuccess?: (data: R, router: AppRouter) => void
+  onError?: (error: OnErrorErrors, router: AppRouter) => void
+  onSettled?: (actionData: { success: true; data: R } | { success: false; error: OnErrorErrors }, router: AppRouter) => void
 }
 type Init<R, TFields> = InitNoInputs<R> & { onFieldError?: (errorFields: { [P in keyof TFields]?: string[] }) => void }
 

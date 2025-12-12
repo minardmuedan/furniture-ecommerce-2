@@ -1,11 +1,19 @@
 'use client'
 
 import { sessionStore } from '@/lib/zustand-store/session'
+import { socketStore } from '@/lib/zustand-store/socket'
+import { useRouter } from 'next/navigation'
 import { useEffect } from 'react'
 
-export default function InitializeSession() {
+export default function InitializeSessionSocket() {
+  const router = useRouter()
   useEffect(() => {
-    sessionStore.getState().fetchSession()
+    const getSession = async () => {
+      const session = await sessionStore.getState().fetchSession()
+      if (session) socketStore.getState().connectSocket(session.sessionId, { router })
+    }
+
+    getSession()
   }, [])
 
   return null
