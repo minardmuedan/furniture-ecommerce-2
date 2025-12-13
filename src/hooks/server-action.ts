@@ -50,7 +50,6 @@ export function useServerAction<R, TFields>(
     execute: async (inputs: TFields) => {
       setIsPending(true)
       const actionData = await serverAction(inputs)
-
       setIsPending(false)
 
       if (actionData.ratelimit) {

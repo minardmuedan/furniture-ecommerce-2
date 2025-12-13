@@ -9,11 +9,13 @@ import { useServerAction } from '@/hooks/server-action'
 import { typedObjectEntries } from '@/lib/utils'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { ArrowLeft } from 'lucide-react'
+import { useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { forgotPasswordSchema } from '../schema'
-import { forgotPasswordAction } from './forgot-password-action'
+import { forgotPasswordAction } from './actions'
 
-export default function ForgotPasswordFormCard() {
+export default function ForgotPasswordFormCard({ initialFormError }: { initialFormError?: string }) {
+  const [formError, setFormError] = useState(initialFormError)
   const form = useForm({ resolver: zodResolver(forgotPasswordSchema), defaultValues: { email: '' } })
 
   const action = useServerAction(forgotPasswordAction, {
@@ -21,8 +23,14 @@ export default function ForgotPasswordFormCard() {
     onFieldError: (fields) => {
       typedObjectEntries(fields).map(([key, error]) => form.setError(key, { message: error[0] }, { shouldFocus: true }))
     },
-    onError: (err) => form.setError('root', { message: err.message }),
+    onError: (err) => setFormError(err.message),
   })
+
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    setFormError(undefined)
+    form.handleSubmit(action.execute)(e)
+  }
 
   return (
     <Card>
@@ -38,8 +46,8 @@ export default function ForgotPasswordFormCard() {
       </CardHeader>
 
       <CardContent>
-        <form id="forgot-password-form" onSubmit={form.handleSubmit(action.execute)} className="space-y-6">
-          <FormError error={form.formState.errors.root?.message} />
+        <form id="forgot-password-form" onSubmit={handleSubmit} className="space-y-6">
+          <FormError error={formError} />
 
           <FieldGroup>
             <Controller
@@ -50,9 +58,7 @@ export default function ForgotPasswordFormCard() {
                 <Field data-invalid={fieldState.invalid}>
                   <FieldLabel htmlFor="email">Email address</FieldLabel>
                   <Input {...field} id="email" aria-invalid={fieldState.invalid} type="email" placeholder="minard@example.com" />
-                  {fieldState.invalid && (
-                    <FieldError errors={[fieldState.error]} className="animate-in slide-in-from-left-2 ease-in" />
-                  )}
+                  {fieldState.invalid && <FieldError errors={[fieldState.error]} className="animate-in slide-in-from-left-2 ease-in" />}
                 </Field>
               )}
             />

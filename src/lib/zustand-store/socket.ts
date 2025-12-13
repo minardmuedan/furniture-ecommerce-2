@@ -16,6 +16,7 @@ type SocketStore = {
     sessionId: string,
     init: {
       router: AppRouter
+      onConnect?: () => void
       onEmailVerified?: (data: { message: string }) => void
     },
   ) => void
@@ -26,7 +27,7 @@ export const socketStore = createStore<SocketStore>((set, get) => ({
   isConnected: false,
   isReconnectFailed: false,
   socket: null,
-  connectSocket: (sessionId, { router, onEmailVerified }) => {
+  connectSocket: (sessionId, { router, onConnect, onEmailVerified }) => {
     const existingSocket = get().socket
 
     if (get().isConnected && existingSocket) {
@@ -43,7 +44,11 @@ export const socketStore = createStore<SocketStore>((set, get) => ({
       reconnectFailedToast()
     })
 
-    newSocket.on('connect', () => set({ isConnected: true, isReconnectFailed: false }))
+    newSocket.on('connect', () => {
+      set({ isConnected: true, isReconnectFailed: false })
+      onConnect?.()
+    })
+
     newSocket.on('disconnect', () => set({ isConnected: false }))
 
     newSocket.on('invalidate-session', ({ message }) => {

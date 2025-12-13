@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 
 export const useCountdown = (initialDate?: Date | number) => {
   const [targetDate, setTargetDate] = useState(initialDate)
-  const [secondsLeft, setSecondsLeft] = useState(0)
+  const [secondsLeft, setSecondsLeft] = useState(calculateSecondsLeft)
 
   function calculateSecondsLeft() {
     if (!targetDate) return 0
@@ -12,9 +12,9 @@ export const useCountdown = (initialDate?: Date | number) => {
 
   useEffect(() => {
     const newSecondsLeft = calculateSecondsLeft()
-    setSecondsLeft(newSecondsLeft)
-
     if (newSecondsLeft <= 0) return
+
+    setSecondsLeft(newSecondsLeft)
 
     const intervalId = setInterval(() => {
       const remaining = calculateSecondsLeft()

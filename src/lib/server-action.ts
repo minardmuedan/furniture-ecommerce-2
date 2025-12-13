@@ -23,7 +23,7 @@ export function createServerAction(): {
   }
 }
 
-export function createServerAction<TSchema extends z.ZodObject>(
+export function createServerAction<TSchema extends z.ZodObject | z.ZodIntersection<any>>(
   schema: TSchema,
 ): {
   ratelimit: (init: RateLimiterInit) => {
@@ -33,7 +33,7 @@ export function createServerAction<TSchema extends z.ZodObject>(
   }
 }
 
-export function createServerAction<TSchema extends z.ZodObject>(schema?: TSchema) {
+export function createServerAction<TSchema extends z.ZodObject | z.ZodIntersection<any>>(schema?: TSchema) {
   type Fields = z.infer<TSchema>
   return {
     ratelimit: (init: RateLimiterInit) => {
@@ -55,8 +55,7 @@ export function createServerAction<TSchema extends z.ZodObject>(schema?: TSchema
                 const actionData = schema ? await serverActionFn(parsedInputs, throwFieldZodError) : await serverActionFn()
                 return { data: actionData }
               } catch (err) {
-                if (err instanceof z.ZodError && schema)
-                  return { isError: true, type: 'input_error', ...z.flattenError(err) } as InputError<Fields>
+                if (err instanceof z.ZodError && schema) return { isError: true, type: 'input_error', ...z.flattenError(err) } as InputError<Fields>
                 if (err instanceof CustomError) return { ...err }
                 return { isError: true, type: 'server_error', message: 'Something went wrong!' }
               }

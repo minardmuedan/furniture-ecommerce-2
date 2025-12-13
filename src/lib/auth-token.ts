@@ -4,59 +4,56 @@ import { CustomError } from '@/lib/server-action'
 import { generateSecureRandomString } from '@/lib/utils'
 import type { RedisSchema } from '@/types/redis'
 import { jwtVerify, SignJWT } from 'jose'
+import type { SetOptions } from 'redis'
 
-type EP = 'email' | 'password'
+type E_OR_P = 'email' | 'password'
+type User = { id: string; username: string }
+type EmailVerificationDataParams = { sessionId: string; user: User }
+type PasswordVerificationDataParams = { user: User }
 
 const JWT_KEY = new TextEncoder().encode(process.env.JWT_KEY)
+const verificationError = {
+  not_found: 'Verification token not found!',
+  not_matched: 'Verification token not matched!',
+  expired: 'Verification token is expired!',
+}
 
-const createToken = async (email: string) => {
+async function createVerificationToken(type: 'email', email: string, data: EmailVerificationDataParams): Promise<{ jwtToken: string }>
+async function createVerificationToken(type: 'password', email: string, data: PasswordVerificationDataParams): Promise<{ jwtToken: string }>
+async function createVerificationToken(type: E_OR_P, email: string, data: EmailVerificationDataParams | PasswordVerificationDataParams) {
   const token = generateSecureRandomString(28)
-  const jwtToken = await new SignJWT({ email, token }).setProtectedHeader({ alg: 'HS256' }).sign(JWT_KEY)
-  return { token, jwtToken }
-}
-
-export const verifyVerificationToken = async (jwtToken: string) =>
-  (await jwtVerify<{ email: string; token: string }>(jwtToken, JWT_KEY, { algorithms: ['HS256'] })).payload
-
-export const createEmailVerificationToken = async (data: {
-  sessionId: string
-  user: { id: string; username: string; email: string }
-}) => {
-  const { email } = data.user
-  const { token, jwtToken } = await createToken(email)
   const expiresAt = Date.now() + FIFTEEN_MINUTES_IN_MS
-  await redis.set(`verification:email:${email}`, { token, expiresAt, ...data }, { expiration: { type: 'PX', value: DAY_IN_MS / 2 } })
-  return { jwtToken }
+  const redisOptions: SetOptions = { expiration: { type: 'PX', value: DAY_IN_MS / 2 } }
+
+  if (type === 'email') {
+    const emailData = data as EmailVerificationDataParams
+    await redis.set(`verification:email:${email}`, { token, expiresAt, ...emailData }, redisOptions)
+  } else await redis.set(`verification:password:${email}`, { token, expiresAt, ...data }, redisOptions)
+
+  return { jwtToken: await new SignJWT({ email, token }).setProtectedHeader({ alg: 'HS256' }).sign(JWT_KEY) }
 }
 
-export const createPasswordVerificationToken = async (data: { user: { id: string; email: string } }) => {
-  const { email } = data.user
-  const { token, jwtToken } = await createToken(email)
-  const expiresAt = Date.now() + FIFTEEN_MINUTES_IN_MS
-  await redis.set(
-    `verification:password:${email}`,
-    { token, expiresAt, ...data },
-    { expiration: { type: 'PX', value: DAY_IN_MS / 2 } },
-  )
-  return { jwtToken }
-}
+type EmailVerificationFnReturn = RedisSchema[`verification:email:${string}`] & { email: string }
+type PasswordVerificationFnReturn = RedisSchema[`verification:password:${string}`] & { email: string }
 
-type VerificationTokenReturnType<TEP extends EP> = TEP extends 'email'
-  ? RedisSchema[`verification:email:${string}`]
-  : RedisSchema[`verification:password:${string}`]
-
-export const getVerificationToken = async <TEP extends EP>(
-  type: TEP,
-  email: string,
-  token?: string,
-): Promise<VerificationTokenReturnType<TEP>> => {
+async function getVerificationToken(type: 'email', email: string): Promise<EmailVerificationFnReturn>
+async function getVerificationToken(type: 'password', email: string): Promise<PasswordVerificationFnReturn>
+async function getVerificationToken(type: E_OR_P, email: string): Promise<EmailVerificationFnReturn | PasswordVerificationFnReturn> {
   const tokenData = await redis.get(`verification:${type}:${email}`)
-  if (!tokenData) throw new CustomError('not_found', 'Verification token not found!')
-
-  if (token && tokenData.token !== token) throw new CustomError('not_matched', 'Verification token not matched!')
-
-  if (Date.now() > tokenData.expiresAt) throw new CustomError('expired', 'Verification token is expired!')
-  return tokenData as VerificationTokenReturnType<TEP>
+  if (!tokenData) throw new CustomError('not_found', '')
+  if (Date.now() > tokenData.expiresAt) throw new CustomError('expired', '')
+  return { email, ...tokenData }
 }
 
-export const deleteVerificationToken = async (type: EP, id: string) => await redis.del(`verification:${type}:${id}`)
+async function getVerificationTokenByJwtToken(type: 'email', jwtToken: string): Promise<EmailVerificationFnReturn>
+async function getVerificationTokenByJwtToken(type: 'password', jwtToken: string): Promise<PasswordVerificationFnReturn>
+async function getVerificationTokenByJwtToken(type: E_OR_P, jwtToken: string): Promise<EmailVerificationFnReturn | PasswordVerificationFnReturn> {
+  const { payload } = await jwtVerify<{ email: string; token: string }>(jwtToken, JWT_KEY, { algorithms: ['HS256'] })
+  const tokenData = type === 'email' ? await getVerificationToken(type, payload.email) : await getVerificationToken(type, payload.email)
+  if (tokenData.token !== payload.token) throw new CustomError('not_matched', '')
+  return tokenData
+}
+
+const deleteVerificationToken = async (type: E_OR_P, email: string) => await redis.del(`verification:${type}:${email}`)
+
+export { verificationError, createVerificationToken, getVerificationToken, getVerificationTokenByJwtToken, deleteVerificationToken }

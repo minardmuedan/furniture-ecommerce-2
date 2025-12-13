@@ -14,6 +14,8 @@ import { AlertDialogTrigger } from '@radix-ui/react-alert-dialog'
 import { Check, Undo2, X } from 'lucide-react'
 import { useState } from 'react'
 import { backToSignupAction } from '../actions'
+import { socketStore } from '@/lib/zustand-store/socket'
+import { usePreventUnload } from '@/components/unload-preventer'
 
 export default function CancelEmailVerificationButton() {
   const [isPending, setIsPending] = useState(false)
@@ -22,6 +24,8 @@ export default function CancelEmailVerificationButton() {
     setIsPending(true)
     await backToSignupAction()
     setIsPending(false)
+    socketStore.getState().disconnectSocket()
+    usePreventUnload.getState().setCanUnload(true)
   }
 
   return (

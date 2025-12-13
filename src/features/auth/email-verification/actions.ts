@@ -1,7 +1,7 @@
 'use server'
 
 import { updateUserDb } from '@/db/utils/users'
-import { createEmailVerificationToken, deleteVerificationToken, getVerificationToken, verifyVerificationToken } from '@/lib/auth-token'
+import { createVerificationToken, deleteVerificationToken, getVerificationToken, getVerificationTokenByJwtToken } from '@/lib/auth-token'
 import { FIFTEEN_MINUTES_IN_SECONDS } from '@/lib/data-const'
 import { deleteCookie, getCookie, setCookie } from '@/lib/headers'
 import { mailerSendEmailVerificationToken } from '@/lib/mailer'
@@ -14,8 +14,7 @@ import { jwtTokenSchema } from '../schema'
 export const verifyEmailAction = createServerAction(jwtTokenSchema)
   .ratelimit({ key: 'verify-email', capacity: 100, refillRate: 1, refillPerSeconds: 30 })
   .handle<{ message: string; redirectTo: Route }>(async ({ jwtToken }) => {
-    const { email, token } = await verifyVerificationToken(jwtToken)
-    const { sessionId, user } = await getVerificationToken('email', email, token)
+    const { sessionId, email, user } = await getVerificationTokenByJwtToken('email', jwtToken)
 
     await updateUserDb(user.id, { emailVerified: new Date() })
 
@@ -38,10 +37,10 @@ export const resendEmailVerificationAction = createServerAction()
     const email = await getCookie('signup')
     if (!email) throw new CustomError('not_found', 'Verification Token not found!')
 
-    const { sessionId, user } = await getVerificationToken('email', email)
+    const tokenData = await getVerificationToken('email', email)
+    const { jwtToken } = await createVerificationToken('email', email, tokenData)
 
-    const { jwtToken } = await createEmailVerificationToken({ sessionId, user })
-    await mailerSendEmailVerificationToken(user.email, jwtToken)
+    await mailerSendEmailVerificationToken(email, jwtToken)
     await setCookie('signup', email, { maxAge: FIFTEEN_MINUTES_IN_SECONDS })
   })
 

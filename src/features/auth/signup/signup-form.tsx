@@ -68,9 +68,7 @@ export default function SignupCardForm({ initialFormError }: { initialFormError?
                   <Field data-invalid={fieldState.invalid}>
                     <FieldLabel htmlFor={formField.name}>{formField.title}</FieldLabel>
                     <Input {...field} id={formField.name} aria-invalid={fieldState.invalid} {...formField.inputProps} />
-                    {fieldState.invalid && (
-                      <FieldError errors={[fieldState.error]} className="animate-in slide-in-from-left-2 ease-in" />
-                    )}
+                    {fieldState.invalid && <FieldError errors={[fieldState.error]} className="animate-in slide-in-from-left-2 ease-in" />}
                   </Field>
                 )}
               />
@@ -80,12 +78,7 @@ export default function SignupCardForm({ initialFormError }: { initialFormError?
       </CardContent>
 
       <CardFooter className="relative flex-col">
-        <Button
-          type="submit"
-          disabled={!action.isHydrated || action.isPending || action.rateLimiter.isLimit}
-          form="signup-form"
-          className="w-full"
-        >
+        <Button type="submit" disabled={!action.isHydrated || action.isPending || action.rateLimiter.isLimit} form="signup-form" className="w-full">
           {action.rateLimiter.isLimit ? `Continue after ${action.rateLimiter.secondsLeft} second/s` : 'Continue'}
         </Button>
       </CardFooter>
@@ -97,9 +90,5 @@ const signupFormFields = [
   { name: 'username', title: 'Username', inputProps: { type: 'text', placeholder: 'username123', autoComplete: 'username' } },
   { name: 'email', title: 'Email', inputProps: { type: 'email', placeholder: 'minard@example.com' } },
   { name: 'password', title: 'Password', inputProps: { type: 'password', placeholder: '********', autoComplete: 'off' } },
-  {
-    name: 'confirmPassword',
-    title: 'Confirm Password',
-    inputProps: { type: 'password', placeholder: '********', autoComplete: 'off' },
-  },
+  { name: 'confirmPassword', title: 'Confirm Password', inputProps: { type: 'password', placeholder: '********', autoComplete: 'off' } },
 ] as const

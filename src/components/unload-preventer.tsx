@@ -10,7 +10,7 @@ export const usePreventUnload = create<PreventUnloadStore>((set) => ({
   setCanUnload: (value) => set({ canUnload: value }),
 }))
 
-export default function PreventUnload() {
+export default function UnloadPreventer() {
   const { canUnload } = usePreventUnload()
 
   useEffect(() => {

@@ -14,12 +14,12 @@ export default function VerifyEmailButton({ jwtToken }: { jwtToken: string }) {
       toast.success(data.message)
       router.replace(data.redirectTo)
     },
-    onError: ({ message }, router) => router.replace(`/signup?error=${message}`),
+    onError: ({ type }, router) => router.replace(`/signup?error=${type}`),
   })
 
   return (
-    <Button disabled={!isHydrated || isPending || rateLimiter.isLimit} onClick={() => execute({ jwtToken })}>
-      {rateLimiter.isLimit ? `Verify after ${rateLimiter.secondsLeft} second/s` : 'Verify Email'}
+    <Button disabled={!isHydrated || isPending || rateLimiter.isLimit} onClick={() => execute({ jwtToken })} className="w-full">
+      {rateLimiter.isLimit ? `Verify after ${rateLimiter.secondsLeft} second/s` : 'Verify Email 🎉'}
     </Button>
   )
 }

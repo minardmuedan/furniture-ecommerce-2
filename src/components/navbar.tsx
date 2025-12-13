@@ -6,6 +6,7 @@ import type { ClientSession } from '@/types/session'
 import Link from 'next/link'
 import { useStore } from 'zustand'
 import { ButtonLink } from './ui/button'
+import { socketStore } from '@/lib/zustand-store/socket'
 
 export default function Navbar() {
   const isInitializing = useStore(sessionStore, (s) => s.isInitializing)
@@ -37,10 +38,14 @@ export default function Navbar() {
 }
 
 function Usernav({ session }: { session: NonNullable<ClientSession> }) {
+  const isConnected = useStore(socketStore, (s) => s.isConnected)
+
   return (
     <div className="flex items-center gap-2">
+      <div className={`${isConnected ? 'bg-green-300' : 'animate-pulse bg-yellow-200'} size-2 rounded-full`}>
+        <span className="sr-only">connection indicator</span>
+      </div>
       <span>hello, {session.user.username}</span>
-
       <LogoutButton />
     </div>
   )

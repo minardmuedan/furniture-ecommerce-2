@@ -23,3 +23,7 @@ export const jwtTokenSchema = z.object({ jwtToken: z.string() })
 export const loginSchema = z.object({ email: emailSchema, password: z.string().min(1, 'Password is required') })
 
 export const forgotPasswordSchema = z.object({ email: emailSchema })
+
+export const changePasswordSchema = z
+  .object({ password: passwordSchema, confirmPassword: z.string().min(1, 'Confirm your password') })
+  .refine((data) => data.password === data.confirmPassword, { path: ['confirmPassword'], message: 'Password do not match' })

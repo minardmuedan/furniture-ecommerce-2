@@ -18,8 +18,12 @@ export default function ResendEmailVerificationButton() {
 
   return (
     <Button disabled={!action.isHydrated || action.isPending || action.rateLimiter.isLimit} onClick={action.execute}>
-      {action.isPending ? <Spinner /> : <Send />} Resend{' '}
-      {action.rateLimiter.isLimit ? `after ${action.rateLimiter.secondsLeft} second/s` : 'Verification'}
+      Resend{' '}
+      {action.rateLimiter.isLimit ? (
+        `after ${action.rateLimiter.secondsLeft} second/s`
+      ) : (
+        <>Verification {action.isPending ? <Spinner /> : <Send />}</>
+      )}
     </Button>
   )
 }

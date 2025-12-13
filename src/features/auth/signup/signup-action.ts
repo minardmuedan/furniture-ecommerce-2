@@ -28,7 +28,7 @@ export const signupAction = createServerAction(signupSchema)
     } else await createUserDb({ id: userId, username, email, password: hashedPassword })
 
     const sessionId = await createSession(userId, true)
-    const { jwtToken } = await createVerificationToken('email', { sessionId, user: { id: userId, username, email } })
+    const { jwtToken } = await createVerificationToken('email', email, { sessionId, user: { id: userId, username } })
 
     await mailerSendEmailVerificationToken(email, jwtToken)
     await setCookie('signup', email, { maxAge: FIFTEEN_MINUTES_IN_SECONDS })

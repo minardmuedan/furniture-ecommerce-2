@@ -1,7 +1,6 @@
 'use client'
 
-import SignupLoading from '@/app/(auth)/signup/loading'
-import { usePreventUnload } from '@/components/prevent-unload'
+import { usePreventUnload } from '@/components/unload-preventer'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { useCountdown } from '@/hooks/countdown'
 import { socketStore } from '@/lib/zustand-store/socket'
@@ -21,10 +20,8 @@ export default function EmailVerificationCheckerCard({ sessionId, expiresAt, ema
   const { secondsLeft, setTargetDate } = useCountdown(expiresAt)
   const setCanUnload = usePreventUnload.getState().setCanUnload
   const isConnected = useStore(socketStore, (s) => s.isConnected)
-  const isReconnectFailed = useStore(socketStore, (s) => s.isReconnectFailed)
 
   useEffect(() => {
-    setCanUnload(false)
     setTargetDate(expiresAt)
 
     const timeoutId = setTimeout(() => {
@@ -35,6 +32,7 @@ export default function EmailVerificationCheckerCard({ sessionId, expiresAt, ema
 
     socketStore.getState().connectSocket(sessionId, {
       router,
+      onConnect: () => setCanUnload(false),
       onEmailVerified: ({ message }) => {
         toast.success(message)
         sessionStore.getState().revalidateSession()
@@ -49,12 +47,10 @@ export default function EmailVerificationCheckerCard({ sessionId, expiresAt, ema
     }
   }, [expiresAt])
 
-  if (!isConnected && !isReconnectFailed) return <SignupLoading />
-
   return (
     <Card className="w-10/12 text-center sm:max-w-lg sm:border sm:text-start">
       <CardHeader>
-        {isReconnectFailed ? (
+        {!isConnected ? (
           <CardTitle className="flex items-center justify-center gap-2 text-xl text-yellow-500 sm:justify-start">
             <Unplug />
             <span>Not Connected</span>
