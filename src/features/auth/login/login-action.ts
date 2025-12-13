@@ -18,8 +18,14 @@ export const loginAction = createServerAction(loginSchema)
     const comparePassword = await compare(password, user.password)
     if (!comparePassword) throw new CustomError('not_found', 'Incorrect credentials. Please try again')
 
-    const sessionId = await createSession(user.id)
-    await redis.set(`session:${sessionId}`, { sessionId, user: { username: user.username, email } }, { expiration: { type: 'PX', value: DAY_IN_MS } })
+    const { id: userId, username, isAdmin } = user
+    const sessionId = await createSession(userId)
+
+    await redis.set(
+      `session:${sessionId}`,
+      { session: { sessionId, user: { id: userId, username, email, isAdmin } } },
+      { expiration: { type: 'PX', value: DAY_IN_MS } },
+    )
 
     return { message: `Good to see you again, ${user.username}` }
   })

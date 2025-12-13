@@ -3,6 +3,7 @@ import { DAY_IN_MS, THIRTY_MINUTES_IN_MS, WEEK_IN_MS, WEEK_IN_SECONDS } from './
 import { deleteCookie, getCookie, getIpAddress, getUserAgent, setCookie } from './headers'
 import { redis } from './redis'
 import { generateSecureRandomString } from './utils'
+import type { Session } from '@/types/session'
 
 export const SESSION_COOKIE_KEY = 'session'
 
@@ -22,12 +23,12 @@ export const createSession = async (userId: string, temporaryOnly?: boolean) => 
   return id
 }
 
-export const validateSession = async () => {
+export const validateSession = async (): Promise<Session | null> => {
   const sessionId = await getCookie(SESSION_COOKIE_KEY)
   if (!sessionId) return null
 
-  const redisSession = await redis.get(`session:${sessionId}`).catch(() => null)
-  if (redisSession) return redisSession
+  const redisSessionData = await redis.get(`session:${sessionId}`).catch(() => null)
+  if (redisSessionData) return redisSessionData.session
 
   const dbSession = await getSessionDb(sessionId)
   if (!dbSession || dbSession.logoutedAt || !dbSession.user.emailVerified) {
@@ -52,9 +53,14 @@ export const validateSession = async () => {
     console.log(`Session ${sessionId} refreshed for user ${dbSession.userId}`)
   }
 
-  const clientSession = { sessionId: dbSession.id, user: { username: dbSession.user.username, email: dbSession.user.email } }
-  await redis.set(`session:${sessionId}`, clientSession, { expiration: { type: 'PX', value: DAY_IN_MS } })
-  return clientSession
+  const { id, username, email, isAdmin } = dbSession.user
+  await redis.set(
+    `session:${sessionId}`,
+    { session: { sessionId, user: { id, username, email, isAdmin } } },
+    { expiration: { type: 'PX', value: DAY_IN_MS } },
+  )
+
+  return { sessionId, user: { id, username, email, isAdmin } }
 }
 
 export const invalidateSession = async () => {

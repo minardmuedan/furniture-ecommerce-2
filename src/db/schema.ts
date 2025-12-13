@@ -1,5 +1,5 @@
 import { relations } from 'drizzle-orm'
-import { pgTable, timestamp, uniqueIndex, varchar } from 'drizzle-orm/pg-core'
+import { boolean, pgTable, timestamp, uniqueIndex, varchar } from 'drizzle-orm/pg-core'
 
 export const usersTable = pgTable(
   'users',
@@ -9,6 +9,7 @@ export const usersTable = pgTable(
     email: varchar().notNull(),
     emailVerified: timestamp('email_verified'),
     password: varchar().notNull(),
+    isAdmin: boolean('is_admin'),
     createdAt: timestamp('created_at').notNull().defaultNow(),
     updatedAt: timestamp('updated_at').notNull().defaultNow(),
   },

@@ -3,18 +3,16 @@
 import { deleteUserSessionsDb } from '@/db/utils/sessions'
 import { createUserDb, getUserByEmailDb, updateUserDb } from '@/db/utils/users'
 import { createVerificationToken, deleteVerificationToken, getVerificationToken, getVerificationTokenByJwtToken } from '@/lib/auth-token'
-import { FIFTEEN_MINUTES_IN_SECONDS } from '@/lib/data-const'
-import { setCookie, getCookie, deleteCookie } from '@/lib/headers'
+import { FIFTEEN_MINUTES_IN_SECONDS, THIRTY_MINUTES_IN_MS } from '@/lib/data-const'
+import { deleteCookie, getCookie, setCookie } from '@/lib/headers'
 import { mailerSendEmailVerificationToken } from '@/lib/mailer'
+import { redis } from '@/lib/redis'
 import { createServerAction, CustomError } from '@/lib/server-action'
-import { createSession } from '@/lib/session'
+import { createSession, SESSION_COOKIE_KEY } from '@/lib/session'
 import { generateSecureRandomString } from '@/lib/utils'
 import { hash } from 'bcryptjs'
-import { signupSchema } from '../schema'
-import { redis } from '@/lib/redis'
-import { SESSION_COOKIE_KEY } from '@/lib/session'
 import type { Route } from 'next'
-import { jwtTokenSchema } from '../schema'
+import { jwtTokenSchema, signupSchema } from '../schema'
 
 export const signupAction = createServerAction(signupSchema)
   .ratelimit({ key: 'signup', capacity: 5, refillRate: 5, refillPerSeconds: 30 })
@@ -32,6 +30,7 @@ export const signupAction = createServerAction(signupSchema)
     } else await createUserDb({ id: userId, username, email, password: hashedPassword })
 
     const sessionId = await createSession(userId, true)
+    await redis.set(`session:${sessionId}`, { session: null }, { expiration: { type: 'PX', value: THIRTY_MINUTES_IN_MS } })
     const { jwtToken } = await createVerificationToken('email', email, { sessionId, user: { id: userId, username } })
 
     await mailerSendEmailVerificationToken(email, jwtToken)
@@ -62,6 +61,7 @@ export const verifyEmailAction = createServerAction(jwtTokenSchema)
     const { sessionId, email, user } = await getVerificationTokenByJwtToken('email', jwtToken)
 
     await updateUserDb(user.id, { emailVerified: new Date() })
+    await redis.del(`session:${sessionId}`)
 
     const authedMessage = `Email verified successfully! Welcome ${user.username}.`
     await redis.publish('EMAIL_VERIFICATION_CHANNEL', { sessionId, message: authedMessage })
