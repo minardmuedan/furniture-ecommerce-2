@@ -20,7 +20,7 @@ import { useRouter } from 'next/navigation'
 
 export default function ChangePasswordForm({ jwtToken, email, expiresAt }: { jwtToken: string; email: string; expiresAt: number }) {
   const router = useRouter()
-  const { secondsLeft, setTargetDate } = useCountdown(expiresAt)
+  const { secondsLeft } = useCountdown(expiresAt)
 
   const form = useForm({
     resolver: zodResolver(changePasswordSchema),
@@ -34,8 +34,8 @@ export default function ChangePasswordForm({ jwtToken, email, expiresAt }: { jwt
         if (key !== 'jwtToken') form.setError(key, { message: error[0] }, { shouldFocus: true })
       })
     },
-    onError: (err, router) => {
-      form.setError('root', { message: err.message })
+    onError: ({ message }, router) => {
+      if (message) form.setError('root', { message })
       router.refresh()
     },
     onSuccess: ({ message }, router) => {
@@ -45,14 +45,12 @@ export default function ChangePasswordForm({ jwtToken, email, expiresAt }: { jwt
   })
 
   useEffect(() => {
-    setTargetDate(expiresAt)
-
     const timeoutId = setTimeout(() => {
       router.refresh()
     }, expiresAt - Date.now())
 
     return () => clearTimeout(timeoutId)
-  }, [expiresAt])
+  }, [])
 
   return (
     <Card>
@@ -61,10 +59,7 @@ export default function ChangePasswordForm({ jwtToken, email, expiresAt }: { jwt
           <PlantLogo />
           Create your new password
         </CardTitle>
-        <CardDescription>
-          Change password for {email} <Clock className="inline size-4" />{' '}
-          {secondsLeft > 60 ? `${Math.ceil(secondsLeft / 60)} minutes` : `${secondsLeft} seconds`}
-        </CardDescription>
+        <CardDescription>Change password for {email}</CardDescription>
       </CardHeader>
 
       <CardContent>
@@ -99,6 +94,10 @@ export default function ChangePasswordForm({ jwtToken, email, expiresAt }: { jwt
         >
           {action.rateLimiter.isLimit ? `Change Password after ${action.rateLimiter.secondsLeft} second/s` : 'Change Password'}
         </Button>
+
+        <div className="text-muted-foreground mt-3 text-center text-xs">
+          <Clock className="inline size-4" /> {secondsLeft > 60 ? `${Math.ceil(secondsLeft / 60)} minutes` : `${secondsLeft} seconds`}
+        </div>
       </CardFooter>
     </Card>
   )

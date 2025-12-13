@@ -8,12 +8,12 @@ import { useEffect } from 'react'
 export default function InitializeSessionSocket() {
   const router = useRouter()
   useEffect(() => {
-    const getSession = async () => {
+    const getSessionAndInitializeSocket = async () => {
       const session = await sessionStore.getState().fetchSession()
       if (session) socketStore.getState().connectSocket(session.sessionId, { router })
     }
 
-    getSession()
+    getSessionAndInitializeSocket()
   }, [])
 
   return null

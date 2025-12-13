@@ -5,7 +5,7 @@ import { Card, CardAction, CardContent, CardDescription, CardFooter, CardHeader,
 import FormError from '@/components/ui/error'
 import { Field, FieldError, FieldGroup, FieldLabel } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
-import { useServerAction } from '@/hooks/server-action'
+import { setRatelimit, useServerAction } from '@/hooks/server-action'
 import { typedObjectEntries } from '@/lib/utils'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { ArrowLeft } from 'lucide-react'
@@ -24,6 +24,7 @@ export default function ForgotPasswordFormCard({ initialFormError }: { initialFo
       typedObjectEntries(fields).map(([key, error]) => form.setError(key, { message: error[0] }, { shouldFocus: true }))
     },
     onError: (err) => setFormError(err.message),
+    onSuccess: () => setRatelimit('rresend-password-verification', 30),
   })
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {

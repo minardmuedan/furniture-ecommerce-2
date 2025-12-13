@@ -13,7 +13,7 @@ import { ArrowRight } from 'lucide-react'
 import { useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { signupSchema } from '../schema'
-import { signupAction } from './signup-action'
+import { signupAction } from './actions'
 
 export default function SignupCardForm({ initialFormError }: { initialFormError?: string }) {
   const [formError, setFormError] = useState(initialFormError)

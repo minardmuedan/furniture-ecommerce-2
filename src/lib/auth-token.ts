@@ -12,11 +12,6 @@ type EmailVerificationDataParams = { sessionId: string; user: User }
 type PasswordVerificationDataParams = { user: User }
 
 const JWT_KEY = new TextEncoder().encode(process.env.JWT_KEY)
-const verificationError = {
-  not_found: 'Verification token not found!',
-  not_matched: 'Verification token not matched!',
-  expired: 'Verification token is expired!',
-}
 
 async function createVerificationToken(type: 'email', email: string, data: EmailVerificationDataParams): Promise<{ jwtToken: string }>
 async function createVerificationToken(type: 'password', email: string, data: PasswordVerificationDataParams): Promise<{ jwtToken: string }>
@@ -56,4 +51,17 @@ async function getVerificationTokenByJwtToken(type: E_OR_P, jwtToken: string): P
 
 const deleteVerificationToken = async (type: E_OR_P, email: string) => await redis.del(`verification:${type}:${email}`)
 
-export { verificationError, createVerificationToken, getVerificationToken, getVerificationTokenByJwtToken, deleteVerificationToken }
+const verificationError = {
+  not_found: 'Verification token not found!',
+  not_matched: 'Verification token not matched!',
+  expired: 'Verification token is expired!',
+}
+
+const isVerificationError = (error: string | string[] | undefined) => {
+  if (typeof error === 'string' && ['not_found', 'not_matched', 'expired'].includes(error)) {
+    return verificationError[error as keyof typeof verificationError]
+  }
+  return undefined
+}
+
+export { isVerificationError, createVerificationToken, getVerificationToken, getVerificationTokenByJwtToken, deleteVerificationToken }

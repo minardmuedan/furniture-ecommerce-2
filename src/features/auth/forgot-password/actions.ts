@@ -1,13 +1,15 @@
 'use server'
 
+import { getUserSessionsDb, logoutAllUserSessionDb } from '@/db/utils/sessions'
 import { getUserByEmailDb, updateUserDb } from '@/db/utils/users'
 import { createVerificationToken, deleteVerificationToken, getVerificationToken, getVerificationTokenByJwtToken } from '@/lib/auth-token'
 import { FIFTEEN_MINUTES_IN_SECONDS } from '@/lib/data-const'
 import { deleteCookie, getCookie, setCookie } from '@/lib/headers'
 import { mailerSendPasswordVerificationToken } from '@/lib/mailer'
+import { redis } from '@/lib/redis'
 import { createServerAction, CustomError } from '@/lib/server-action'
-import { changePasswordSchema, forgotPasswordSchema, jwtTokenSchema } from '../schema'
 import { hash } from 'bcryptjs'
+import { changePasswordSchema, forgotPasswordSchema, jwtTokenSchema } from '../schema'
 
 export const forgotPasswordAction = createServerAction(forgotPasswordSchema)
   .ratelimit({ key: 'forgot-password', capacity: 10, refillRate: 5, refillPerSeconds: 30 })
@@ -42,8 +44,21 @@ export const changeUserPasswordAction = createServerAction(jwtTokenSchema.and(ch
   .handle(async ({ jwtToken, password }) => {
     const { email, user } = await getVerificationTokenByJwtToken('password', jwtToken)
     const hashedPassword = await hash(password, 10)
+
     await updateUserDb(user.id, { password: hashedPassword })
+    await logoutAllUserSessionDb(user.id)
+
+    const userSessions = await getUserSessionsDb(user.id)
+
+    await Promise.all(
+      userSessions.map(async ({ id }) => {
+        await redis.del(`session:${id}`)
+        await redis.publish('INVALIDATE_SESSION_CHANNEL', { sessionId: id, message: 'Session invalidated, Please login again!' })
+      }),
+    )
+
     await deleteVerificationToken('password', email)
-    await deleteCookie('forgot-password').catch(() => {})
+    await deleteCookie('forgot-password')
+
     return { message: `Success! Password updated for ${user.username}. Try to log it in` }
   })

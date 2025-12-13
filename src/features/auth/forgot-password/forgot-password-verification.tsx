@@ -10,8 +10,11 @@ import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
 import { cancelPasswordVerificationAction, resendPasswordVerificationAction } from './actions'
+import FormError from '@/components/ui/error'
 
-export default function ForgotPasswordVerificationChecker({ email, expiresAt }: { email: string; expiresAt: number }) {
+type Props = { email: string; expiresAt: number; formError?: string }
+
+export default function ForgotPasswordVerificationCheckerCard({ email, expiresAt, formError }: Props) {
   const router = useRouter()
   const { secondsLeft, setTargetDate } = useCountdown(expiresAt)
 
@@ -42,9 +45,13 @@ export default function ForgotPasswordVerificationChecker({ email, expiresAt }: 
         </CardDescription>
       </CardHeader>
 
-      <CardContent className="flex items-center justify-center gap-1 sm:justify-start">
-        <Mailbox className="text-muted-foreground" />
-        <span> : {email}</span>
+      <CardContent className="space-y-6">
+        <FormError error={formError} />
+
+        <div className="flex items-center justify-center gap-1 sm:justify-start">
+          <Mailbox className="text-muted-foreground" />
+          <span> : {email}</span>
+        </div>
       </CardContent>
 
       <CardFooter className="flex-col gap-2 *:w-full *:flex-1 sm:flex-row-reverse">
