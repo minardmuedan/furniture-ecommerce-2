@@ -31,7 +31,7 @@ export default function ChangePasswordForm({ jwtToken, email, expiresAt }: { jwt
     rateLimitKey: 'change-password',
     onFieldError: (fields) => {
       typedObjectEntries(fields).map(([key, error]) => {
-        if (key !== 'jwtToken') form.setError(key, { message: error[0] }, { shouldFocus: true })
+        if (key !== 'jwtToken') form.setError(key, { message: error?.[0] }, { shouldFocus: true })
       })
     },
     onError: ({ message }, router) => {

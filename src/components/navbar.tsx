@@ -1,12 +1,23 @@
 'use client'
 
+import {
+  NavigationMenu,
+  NavigationMenuContent,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+  NavigationMenuTrigger,
+  navigationMenuTriggerStyle,
+} from '@/components/ui/navigation-menu'
 import LogoutButton from '@/features/auth/logout/logout-button'
+import { categories } from '@/lib/categories'
 import { sessionStore } from '@/lib/zustand-store/session'
+import { socketStore } from '@/lib/zustand-store/socket'
 import type { ClientSession } from '@/types/session'
 import Link from 'next/link'
 import { useStore } from 'zustand'
+import PlantLogo from './plant-logo'
 import { ButtonLink } from './ui/button'
-import { socketStore } from '@/lib/zustand-store/socket'
 
 export default function Navbar() {
   const isInitializing = useStore(sessionStore, (s) => s.isInitializing)
@@ -15,7 +26,11 @@ export default function Navbar() {
 
   return (
     <header className="flex h-14 items-center justify-between border-b px-5">
-      <Link href="/">Home</Link>
+      <Link href="/">
+        <PlantLogo /> <span className="sr-only">home</span>
+      </Link>
+
+      <NavMenu />
 
       {isInitializing ? (
         <p>initializing session...</p>
@@ -34,6 +49,52 @@ export default function Navbar() {
         </div>
       )}
     </header>
+  )
+}
+
+function NavMenu() {
+  const navMenuList = [
+    { title: 'home', href: '/' },
+    { title: 'categories', sublinks: categories },
+    { title: 'products', href: '/products' },
+    { title: 'about', href: '/' },
+    { title: 'contact us', href: '/' },
+  ] as const
+
+  return (
+    <NavigationMenu className="text-muted-foreground">
+      {navMenuList.map((menuList) => (
+        <NavigationMenuList key={menuList.title}>
+          <NavigationMenuItem>
+            {'sublinks' in menuList ? (
+              <>
+                <NavigationMenuTrigger className="text-muted-foreground">categories </NavigationMenuTrigger>
+                <NavigationMenuContent className="grid min-w-md grid-cols-2">
+                  {Object.entries(menuList.sublinks).map(([category, categoryData]) => (
+                    <NavigationMenuLink key={category} asChild>
+                      <Link href={`/${category}`}>
+                        <div>
+                          <div className="font-normal">{categoryData.title}</div>
+                          <ul className="text-muted-foreground">
+                            {Object.entries(categoryData.subcategories).map(([subcategory, subcategoryData]) => (
+                              <li key={subcategory}>{subcategoryData.title}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      </Link>
+                    </NavigationMenuLink>
+                  ))}
+                </NavigationMenuContent>
+              </>
+            ) : (
+              <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
+                <Link href={menuList.href}>{menuList.title}</Link>
+              </NavigationMenuLink>
+            )}
+          </NavigationMenuItem>
+        </NavigationMenuList>
+      ))}
+    </NavigationMenu>
   )
 }
 

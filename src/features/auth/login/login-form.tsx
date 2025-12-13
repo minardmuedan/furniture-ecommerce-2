@@ -22,7 +22,7 @@ export default function LoginFormCard() {
   const action = useServerAction(loginAction, {
     rateLimitKey: 'login',
     onFieldError: (fields) => {
-      typedObjectEntries(fields).map(([key, error]) => form.setError(key, { message: error[0] }, { shouldFocus: true }))
+      typedObjectEntries(fields).map(([key, error]) => form.setError(key, { message: error?.[0] }, { shouldFocus: true }))
     },
     onError: (err) => form.setError('root', { message: err.message }),
     onSuccess: async ({ message }, router) => {
@@ -61,9 +61,7 @@ export default function LoginFormCard() {
                   <Field data-invalid={fieldState.invalid}>
                     <FieldLabel htmlFor={formField.name}>{formField.title}</FieldLabel>
                     <Input {...field} id={formField.name} aria-invalid={fieldState.invalid} {...formField.inputProps} />
-                    {fieldState.invalid && (
-                      <FieldError errors={[fieldState.error]} className="animate-in slide-in-from-left-2 ease-in" />
-                    )}
+                    {fieldState.invalid && <FieldError errors={[fieldState.error]} className="animate-in slide-in-from-left-2 ease-in" />}
                   </Field>
                 )}
               />
@@ -73,12 +71,7 @@ export default function LoginFormCard() {
       </CardContent>
 
       <CardFooter className="relative flex-col gap-2">
-        <Button
-          type="submit"
-          disabled={!action.isHydrated || action.isPending || action.rateLimiter.isLimit}
-          form="login-form"
-          className="w-full"
-        >
+        <Button type="submit" disabled={!action.isHydrated || action.isPending || action.rateLimiter.isLimit} form="login-form" className="w-full">
           {action.rateLimiter.isLimit ? `Login after ${action.rateLimiter.secondsLeft} second/s` : 'Login'}
         </Button>
         <ButtonLink href="/i_have_alzheimer" variant="link" className="w-full">

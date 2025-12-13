@@ -52,12 +52,7 @@ function Button({
   return <Comp data-slot="button" className={cn(buttonVariants({ variant, size, className }))} {...props} />
 }
 
-function ButtonLink({
-  className,
-  variant,
-  size,
-  ...props
-}: LinkProps<Route> & React.ComponentProps<'a'> & VariantProps<typeof buttonVariants>) {
+function ButtonLink({ className, variant, size, ...props }: LinkProps<Route> & React.ComponentProps<'a'> & VariantProps<typeof buttonVariants>) {
   return <Link className={cn(buttonVariants({ variant, size, className }))} {...props} />
 }
 

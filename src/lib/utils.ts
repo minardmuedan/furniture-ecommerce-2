@@ -17,7 +17,4 @@ export function generateSecureRandomString(length: 24 | 28 = 24): string {
   return id
 }
 
-export const typedObjectKeys = <TKey extends string>(o: Record<TKey, unknown>) => Object.keys(o) as TKey[]
-export const typedObjectValues = <TValues>(o: Record<string, TValues>) => Object.values(o) as TValues[]
-export const typedObjectEntries = <TKey extends string, TValues>(o: Partial<Record<TKey, TValues>>) =>
-  Object.entries(o) as [TKey, TValues][]
+export const typedObjectEntries = <T extends Record<string, unknown>>(o: T) => Object.entries(o) as Array<[keyof T, T[keyof T]]>

@@ -7,6 +7,7 @@ import { compare } from 'bcryptjs'
 import { createSession } from '@/lib/session'
 import { redis } from '@/lib/redis'
 import { DAY_IN_MS } from '@/lib/data-const'
+import { redirect } from 'next/navigation'
 
 export const loginAction = createServerAction(loginSchema)
   .ratelimit({ key: 'login', capacity: 10, refillRate: 5, refillPerSeconds: 30 })
@@ -26,6 +27,8 @@ export const loginAction = createServerAction(loginSchema)
       { session: { sessionId, user: { id: userId, username, email, isAdmin } } },
       { expiration: { type: 'PX', value: DAY_IN_MS } },
     )
+
+    if (user.isAdmin) redirect('/admin/dashboard')
 
     return { message: `Good to see you again, ${user.username}` }
   })

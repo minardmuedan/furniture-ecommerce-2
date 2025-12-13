@@ -21,7 +21,7 @@ export default function ForgotPasswordFormCard({ initialFormError }: { initialFo
   const action = useServerAction(forgotPasswordAction, {
     rateLimitKey: 'forgot-password',
     onFieldError: (fields) => {
-      typedObjectEntries(fields).map(([key, error]) => form.setError(key, { message: error[0] }, { shouldFocus: true }))
+      typedObjectEntries(fields).map(([key, error]) => form.setError(key, { message: error?.[0] }, { shouldFocus: true }))
     },
     onError: (err) => setFormError(err.message),
     onSuccess: () => setRatelimit('rresend-password-verification', 30),

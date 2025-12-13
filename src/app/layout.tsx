@@ -1,10 +1,7 @@
-import InitializeSessionSocket from '@/components/initialize-session'
-import Navbar from '@/components/navbar'
 import { Toaster } from '@/components/ui/sonner'
 import type { Metadata } from 'next'
 import { Poppins } from 'next/font/google'
 import './globals.css'
-import PreventUnload from '@/components/unload-preventer'
 
 const poppins = Poppins({ subsets: ['latin'], weight: ['300', '400', '500', '600'], preload: true })
 
@@ -18,11 +15,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   return (
     <html lang="en">
       <body className={`${poppins.className} antialiased`}>
-        <PreventUnload />
-        <InitializeSessionSocket />
-
         <Toaster richColors position="top-right" />
-        <Navbar />
         <main>{children}</main>
       </body>
     </html>

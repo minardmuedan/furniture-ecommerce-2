@@ -26,7 +26,7 @@ export default function SignupCardForm({ initialFormError }: { initialFormError?
   const action = useServerAction(signupAction, {
     rateLimitKey: 'signup',
     onFieldError: (fields) => {
-      typedObjectEntries(fields).map(([key, error]) => form.setError(key, { message: error[0] }, { shouldFocus: true }))
+      typedObjectEntries(fields).map(([key, error]) => form.setError(key, { message: error?.[0] }, { shouldFocus: true }))
     },
     onError: (err) => setFormError(err.message),
     onSuccess: () => setRatelimit('resend-email-verification', 30),
