@@ -4,6 +4,7 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
+  --font-calstavier: var(--font-calstavier);
   --min-height-svhminusnav: calc(100svh - 3.5rem);
 
   --color-background: var(--background);

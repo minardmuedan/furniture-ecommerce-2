@@ -3,7 +3,6 @@ import { cva, type VariantProps } from 'class-variance-authority'
 import * as React from 'react'
 
 import { cn } from '@/lib/utils'
-import type { Route } from 'next'
 import type { LinkProps } from 'next/link'
 import Link from 'next/link'
 
@@ -52,7 +51,7 @@ function Button({
   return <Comp data-slot="button" className={cn(buttonVariants({ variant, size, className }))} {...props} />
 }
 
-function ButtonLink({ className, variant, size, ...props }: LinkProps<Route> & React.ComponentProps<'a'> & VariantProps<typeof buttonVariants>) {
+function ButtonLink<T>({ className, variant, size, ...props }: LinkProps<T> & VariantProps<typeof buttonVariants>) {
   return <Link className={cn(buttonVariants({ variant, size, className }))} {...props} />
 }
 

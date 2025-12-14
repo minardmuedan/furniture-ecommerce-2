@@ -1,5 +1,7 @@
+import type { AllSubcategories, Categories } from '@/lib/categories'
+import type { ProductImage } from '@/types/product-image'
 import { relations } from 'drizzle-orm'
-import { boolean, pgTable, timestamp, uniqueIndex, varchar } from 'drizzle-orm/pg-core'
+import { boolean, integer, jsonb, numeric, pgTable, timestamp, uniqueIndex, varchar } from 'drizzle-orm/pg-core'
 
 export const usersTable = pgTable(
   'users',
@@ -33,3 +35,17 @@ export const sessionsTable = pgTable('sessions', {
 export const sessionRelations = relations(sessionsTable, ({ one }) => ({
   user: one(usersTable, { fields: [sessionsTable.userId], references: [usersTable.id] }),
 }))
+
+export const productsTable = pgTable('products', {
+  id: varchar().primaryKey(),
+  title: varchar().notNull(),
+  description: varchar().notNull(),
+  prevPrice: numeric('prev_price', { precision: 10, scale: 2 }).notNull(),
+  price: numeric({ precision: 10, scale: 2 }).notNull(),
+  category: varchar().$type<Categories>().notNull(),
+  subcategory: varchar().$type<AllSubcategories>().notNull(),
+  stocks: integer().notNull(),
+  image: jsonb().$type<ProductImage>().notNull(),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+  updatedAt: timestamp('updated_at').notNull().defaultNow(),
+})

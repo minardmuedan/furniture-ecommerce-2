@@ -18,6 +18,7 @@ import Link from 'next/link'
 import { useStore } from 'zustand'
 import PlantLogo from './plant-logo'
 import { ButtonLink } from './ui/button'
+import { cn } from '@/lib/utils'
 
 export default function Navbar() {
   const isInitializing = useStore(sessionStore, (s) => s.isInitializing)
@@ -25,7 +26,7 @@ export default function Navbar() {
   const session = useStore(sessionStore, (s) => s.session)
 
   return (
-    <header className="flex h-14 items-center justify-between border-b px-5">
+    <header className="border-foreground/15 sticky top-0 z-40 flex h-14 items-center justify-between border-b px-5">
       <Link href="/">
         <PlantLogo /> <span className="sr-only">home</span>
       </Link>
@@ -62,7 +63,7 @@ function NavMenu() {
   ] as const
 
   return (
-    <NavigationMenu className="text-muted-foreground">
+    <NavigationMenu className="text-muted-foreground hidden md:flex">
       {navMenuList.map((menuList) => (
         <NavigationMenuList key={menuList.title}>
           <NavigationMenuItem>
@@ -87,7 +88,7 @@ function NavMenu() {
                 </NavigationMenuContent>
               </>
             ) : (
-              <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
+              <NavigationMenuLink asChild className={cn(navigationMenuTriggerStyle(), 'hover:bg-background/0')}>
                 <Link href={menuList.href}>{menuList.title}</Link>
               </NavigationMenuLink>
             )}
