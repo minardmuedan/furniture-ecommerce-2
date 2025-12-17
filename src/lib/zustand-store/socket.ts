@@ -1,5 +1,5 @@
 import { dismissToast, reconnectAttemptToast, reconnectedToast, reconnectFailedToast } from '@/components/socket-toast'
-import type { AppRouter } from '@/types/app-router'
+import type { AppRouter } from '@/types/routes'
 import type { ClientSocket } from '@/types/socket'
 import { io } from 'socket.io-client'
 import { toast } from 'sonner'

@@ -1,5 +1,5 @@
-import type { AllSubcategories, Categories } from '@/lib/categories'
-import type { ProductImage } from '@/types/product-image'
+import type { Subcategories, Categories } from '@/lib/categories'
+import type { ProductImage } from '@/types/products'
 import { relations } from 'drizzle-orm'
 import { boolean, integer, jsonb, numeric, pgTable, timestamp, uniqueIndex, varchar } from 'drizzle-orm/pg-core'
 
@@ -43,7 +43,7 @@ export const productsTable = pgTable('products', {
   prevPrice: numeric('prev_price', { precision: 10, scale: 2 }).notNull(),
   price: numeric({ precision: 10, scale: 2 }).notNull(),
   category: varchar().$type<Categories>().notNull(),
-  subcategory: varchar().$type<AllSubcategories>().notNull(),
+  subcategory: varchar().$type<Subcategories>().notNull(),
   stocks: integer().notNull(),
   image: jsonb().$type<ProductImage>().notNull(),
   createdAt: timestamp('created_at').notNull().defaultNow(),

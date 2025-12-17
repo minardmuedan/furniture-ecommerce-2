@@ -18,7 +18,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
     <html lang="en">
       <body className={`${poppins.className} ${calstavier.variable} antialiased`}>
         <Toaster richColors position="top-right" />
-        <main>{children}</main>
+        {children}
       </body>
     </html>
   )

@@ -1,4 +1,4 @@
-import { clientFetch } from '@/lib/cient-fetcher'
+import { fetcher } from '@/lib/fetcher'
 import type { ClientSession } from '@/types/session'
 import { toast } from 'sonner'
 import { createStore } from 'zustand'
@@ -18,7 +18,7 @@ export const sessionStore = createStore<SessionStore>((set, get) => ({
   isPending: false,
   session: null,
   fetchSession: async () => {
-    const result = await clientFetch<ClientSession>('/api/auth')
+    const result = await fetcher('/api/auth')
     set({ isInitializing: false })
     if (result.isError) {
       toast.error(result.message)

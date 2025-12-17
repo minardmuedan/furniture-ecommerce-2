@@ -120,6 +120,9 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground font-light [&_svg]:stroke-[1.5];
+    @apply bg-background text-foreground font-light [&_svg]:stroke-[1.75];
+  }
+  main {
+    @apply mx-auto 2xl:max-w-[1400px];
   }
 }

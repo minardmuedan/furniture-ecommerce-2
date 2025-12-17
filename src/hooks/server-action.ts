@@ -3,7 +3,7 @@ import type { Route } from 'next'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { useCountdown } from './countdown'
-import type { AppRouter } from '@/types/app-router'
+import type { AppRouter } from '@/types/routes'
 
 type OnErrorErrors = { type: CustomErrorTypes | 'server_error'; message: string }
 

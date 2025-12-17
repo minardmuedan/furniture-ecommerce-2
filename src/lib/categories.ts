@@ -1,80 +1,113 @@
+const subcategories = {
+  sofas: { description: 'Comfortable seating for stylish living spaces.' },
+  'coffee-tables': { description: 'Functional centerpiece for your living room.' },
+  'tv-stands': { description: 'Sleek support for your entertainment system.' },
+
+  'dining-tables': { description: 'Inviting centerpiece for family meals.' },
+  chairs: { description: 'Comfortable seating for any room.' },
+  'sideboards-and-buffets': { description: 'Elegant storage for dining essentials.' },
+
+  patio: { description: 'Outdoor comfort for relaxing moments.' },
+  'lounge-chairs': { description: 'Stylish seating for outdoor spaces.' },
+  tables: { description: 'Versatile surfaces for any occasion outdoors.' },
+
+  beds: { description: 'Restful retreats for peaceful sleep.' },
+  nightstands: { description: 'Convenient bedside storage solutions.' },
+  dressers: { description: 'Stylish storage for your bedroom essentials.' },
+
+  shelves: { description: 'Open storage for display and functionality.' },
+  cabinets: { description: 'Closed storage for a clutter-free look.' },
+  wardrobes: { description: 'Ample space for clothing and linens.' },
+
+  'bunk-beds': { description: 'Space-saving sleeping solutions for kids.' },
+  'kids-desks': { description: 'Functional study space for learning and creativity.' },
+  'toy-storage': { description: 'Organized storage for toys and playthings.' },
+
+  desks: { description: 'Functional workspace solutions for productivity.' },
+  'office-chairs': { description: 'Supportive seating for productive workdays.' },
+  bookcases: { description: 'Organized display for your favorite reads.' },
+
+  mirrors: { description: 'Reflective accents that enhance light and space.' },
+  'accent-chairs': { description: 'Stylish standalone chairs for personality.' },
+  'side-tables': { description: 'Chic and functional small tables for decor or essentials.' },
+}
+
 const categories = {
   'living-room': {
-    title: 'Living Room',
     description: 'Furniture and decor to create a cozy, stylish, and functional living space.',
     subcategories: {
-      sofas: { title: 'Sofas', description: 'Comfortable seating for stylish living spaces.' },
-      'coffee-tables': { title: 'Coffee Tables', description: 'Functional centerpiece for your living room.' },
-      'tv-stands': { title: 'TV Stands', description: 'Sleek support for your entertainment system.' },
+      sofas: subcategories['bookcases'],
+      'coffee-tables': subcategories['coffee-tables'],
+      'tv-stands': subcategories['tv-stands'],
     },
   },
   'dining-room': {
-    title: 'Dining Room',
     description: 'Furniture for hosting meals, gatherings, and special occasions.',
     subcategories: {
-      'dining-tables': { title: 'Dining Tables', description: 'Inviting centerpiece for family meals.' },
-      chairs: { title: 'Chairs', description: 'Comfortable seating for any room.' },
-      'sideboards-and-buffets': { title: 'Sideboard & Buffets', description: 'Elegant storage for dining essentials.' },
+      'dining-tables': subcategories['dining-tables'],
+      chairs: subcategories['chairs'],
+      'sideboards-and-buffets': subcategories['sideboards-and-buffets'],
     },
   },
   outdoor: {
-    title: 'Outdoor',
     description: 'Durable furniture designed for outdoor comfort, relaxation, and gatherings.',
     subcategories: {
-      benches: { title: 'Patio', description: 'Outdoor comfort for relaxing moments.' },
-      'lounge-chairs': { title: 'Garden Chairs', description: 'Stylish seating for outdoor spaces.' },
-      tables: { title: 'Tables', description: 'Versatile surfaces for any occasion outdoors.' },
+      patio: subcategories['patio'],
+      'lounge-chairs': subcategories['lounge-chairs'],
+      tables: subcategories['tables'],
     },
   },
   bedroom: {
-    title: 'Bedroom',
     description: 'Essential furniture for restful and organized bedrooms.',
     subcategories: {
-      beds: { title: 'Beds', description: 'Restful retreats for peaceful sleep.' },
-      nightstands: { title: 'Nightstands', description: 'Convenient bedside storage solutions.' },
-      dressers: { title: 'Dressers', description: 'Stylish storage for your bedroom essentials.' },
+      beds: subcategories['beds'],
+      nightstands: subcategories['nightstands'],
+      dressers: subcategories['dressers'],
     },
   },
   storage: {
-    title: 'Storage',
     description: 'Smart storage solutions to keep your home tidy and organized.',
     subcategories: {
-      shelves: { title: 'Shelves', description: 'Open storage for display and functionality.' },
-      cabinets: { title: 'Cabinets', description: 'Closed storage for a clutter-free look.' },
-      wardrobes: { title: 'Wardrobes', description: 'Ample space for clothing and linens.' },
+      shelves: subcategories['shelves'],
+      cabinets: subcategories['cabinets'],
+      wardrobes: subcategories['wardrobes'],
     },
   },
   kids: {
-    title: 'Kids',
     description: 'Fun, safe, and practical furniture designed for kids’ rooms.',
     subcategories: {
-      'bunk-beds': { title: 'Bunk Beds', description: 'Space-saving sleeping solutions for kids.' },
-      'kids-desks': { title: 'Kids Desks', description: 'Functional study space for learning and creativity.' },
-      'toy-storage': { title: 'Toy Storage', description: 'Organized storage for toys and playthings.' },
+      'bunk-beds': subcategories['bunk-beds'],
+      'kids-desks': subcategories['kids-desks'],
+      'toy-storage': subcategories['toy-storage'],
     },
   },
   office: {
-    title: 'Office',
     description: 'Functional and ergonomic furniture for home and work offices.',
     subcategories: {
-      desks: { title: 'Desks', description: 'Functional workspace solutions for productivity.' },
-      'office-chairs': { title: 'Office Chairs', description: 'Supportive seating for productive workdays.' },
-      bookcases: { title: 'Bookcases', description: 'Organized display for your favorite reads.' },
+      desks: subcategories['desks'],
+      'office-chairs': subcategories['office-chairs'],
+      bookcases: subcategories['bookcases'],
     },
   },
   accents: {
-    title: 'Accents',
     description: 'Decorative furniture and pieces to add character to any space.',
     subcategories: {
-      mirrors: { title: 'Mirrors', description: 'Reflective accents that enhance light and space.' },
-      'accent-chairs': { title: 'Accent Chairs', description: 'Stylish standalone chairs for personality.' },
-      'side-tables': { title: 'Side Tables', description: 'Chic and functional small tables for decor or essentials.' },
+      mirrors: subcategories['mirrors'],
+      'accent-chairs': subcategories['accent-chairs'],
+      'side-tables': subcategories['side-tables'],
     },
   },
 }
 
-type Categories = keyof typeof categories
-type Subcategories<TCategory extends Categories> = keyof (typeof categories)[TCategory]['subcategories']
-type AllSubcategories = { [K in Categories]: keyof (typeof categories)[K]['subcategories'] }[Categories]
+const getCategoryTitle = (key: string) =>
+  key
+    .split('-')
 
-export { categories, type Categories, type Subcategories, type AllSubcategories }
+    .map((part) => part[0].toUpperCase() + part.slice(1))
+    .join(' ')
+    .replace('And', '&')
+
+type Categories = keyof typeof categories
+type Subcategories = keyof typeof subcategories
+
+export { categories, subcategories, getCategoryTitle, type Categories, type Subcategories }
