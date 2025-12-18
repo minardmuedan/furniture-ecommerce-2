@@ -1,10 +1,11 @@
 'use client'
 
+import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '@/components/ui/empty'
 import { useInfiniteFetcher } from '@/hooks/fetcher'
 import type { Categories, Subcategories } from '@/lib/categories'
 import type { Product } from '@/types/products'
-import { ImageOff } from 'lucide-react'
-import Image from 'next/image'
+import { BrushCleaning, ImageOff } from 'lucide-react'
+import Image, { type ImageProps } from 'next/image'
 import Link from 'next/link'
 import { memo, useState } from 'react'
 import { Blurhash } from 'react-blurhash'
@@ -47,8 +48,17 @@ const ProductCardSkeleton = () => {
   )
 }
 
-const InfiniteProducts = (filters: { category?: Categories; subcategory?: Subcategories }) => {
-  const { data: products, remainingItems, isLoading, isValidating, fetchMore } = useInfiniteFetcher({ path: '/api/products', searchParams: filters })
+const InfiniteProducts = ({ filters }: { filters?: { category?: Categories; subcategory?: Subcategories } }) => {
+  const {
+    data: products,
+    totalData,
+    remainingItems,
+    isLoading,
+    isValidating,
+    fetchMore,
+  } = useInfiniteFetcher({ path: '/api/products', searchParams: filters })
+
+  if (!isLoading && products.length <= 0) return <NoProduct />
 
   return (
     <>
@@ -74,7 +84,7 @@ const InfiniteProducts = (filters: { category?: Categories; subcategory?: Subcat
   )
 }
 
-function ProductImage({ props }: { props?: Product['image'] }) {
+const ProductImage = ({ props }: { props?: Product['image'] }) => {
   const [isLoaded, setIsLoaded] = useState(false)
   const [hasError, setHasError] = useState(false)
 
@@ -94,7 +104,7 @@ function ProductImage({ props }: { props?: Product['image'] }) {
         width="100%"
         height="100%"
         punch={1}
-        className={`absolute! inset-0! transition-opacity duration-750 ${isLoaded ? 'opacity-0' : 'opacity-100'}`}
+        className={`absolute! inset-0! transition-opacity duration-300 ${isLoaded ? 'opacity-0' : 'opacity-50'}`}
       />
 
       <Image
@@ -112,4 +122,18 @@ function ProductImage({ props }: { props?: Product['image'] }) {
 
 const MemoizedBlurhash = memo(Blurhash)
 
-export { InfiniteProducts, ProductCard, ProductCardSkeleton, ProductImage, ProductMapper }
+const NoProduct = () => {
+  return (
+    <Empty className="border">
+      <EmptyHeader>
+        <EmptyMedia variant="icon">
+          <BrushCleaning />
+        </EmptyMedia>
+        <EmptyTitle>No Products</EmptyTitle>
+        <EmptyDescription>Seller did not yet publish any products in this category</EmptyDescription>
+      </EmptyHeader>
+    </Empty>
+  )
+}
+
+export { InfiniteProducts, NoProduct, ProductCard, ProductCardSkeleton, ProductImage, ProductMapper }

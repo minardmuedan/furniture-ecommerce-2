@@ -27,10 +27,10 @@ export default async function Categorylayout({ params, children }: { params: Pro
         <nav className="grid grid-cols-6 justify-center gap-4 sm:grid-cols-3 md:grid-cols-[repeat(auto-fit,200px)] md:gap-8">{children}</nav>
       </section>
 
-      <section className="pb-20">
+      <main className="pb-20">
         <SectionHeader as="h2">{getCategoryTitle(category)} products</SectionHeader>
-        <InfiniteProducts category={category} />
-      </section>
+        <InfiniteProducts filters={{ category }} />
+      </main>
     </div>
   )
 }

@@ -93,8 +93,8 @@ function NavMenu() {
     { title: 'home', href: '/' },
     { title: 'categories', sublinks: categories },
     { title: 'products', href: '/products' },
+    { title: 'explore', href: '/explore' },
     { title: 'about', href: '/' },
-    { title: 'contact us', href: '/' },
   ] as const
 
   const isActive = (path: string) => pathname === path
@@ -106,7 +106,11 @@ function NavMenu() {
             {'sublinks' in menuList ? (
               <>
                 <NavigationMenuTrigger
-                  className={Object.keys(categories).some((category) => pathname.startsWith(`/${category}`)) ? 'text-foreground' : ''}
+                  className={
+                    Object.keys(categories).some((category) => pathname.startsWith(`/${category}`))
+                      ? 'text-foreground font-calstavier text-lg underline'
+                      : ''
+                  }
                 >
                   categories
                 </NavigationMenuTrigger>
@@ -137,7 +141,11 @@ function NavMenu() {
             ) : (
               <NavigationMenuLink
                 asChild
-                className={cn(navigationMenuTriggerStyle(), 'hover:bg-background/0', isActive(menuList.href) ? 'text-foreground' : '')}
+                className={cn(
+                  navigationMenuTriggerStyle(),
+                  'hover:bg-background/0',
+                  isActive(menuList.href) ? 'text-foreground font-calstavier text-base underline' : '',
+                )}
               >
                 <Link href={menuList.href}>{menuList.title}</Link>
               </NavigationMenuLink>

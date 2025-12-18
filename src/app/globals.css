@@ -117,12 +117,13 @@
 
 @layer base {
   * {
-    @apply border-border outline-ring/50;
+    @apply border-border outline-ring/50 underline-offset-2;
+  }
+  html,
+  body {
+    @apply scroll-smooth;
   }
   body {
     @apply bg-background text-foreground font-light [&_svg]:stroke-[1.75];
-  }
-  main {
-    @apply mx-auto 2xl:max-w-[1400px];
   }
 }

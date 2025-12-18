@@ -1,5 +1,5 @@
 import type { Categories, Subcategories } from '@/lib/categories'
-import { and, eq, or } from 'drizzle-orm'
+import { and, eq } from 'drizzle-orm'
 import { db } from '..'
 import { productsTable } from '../schema'
 
@@ -15,6 +15,7 @@ export const getProductsDb = async ({ page, category, subcategory }: { page: num
       offset: (page - 1) * 20,
       where: filters,
       orderBy: (products, { asc }) => asc(products.createdAt),
+      columns: { createdAt: false, updatedAt: false },
     }),
     page === 1 ? db.$count(productsTable, filters) : 0,
   ])
@@ -24,3 +25,5 @@ export const getProductsDb = async ({ page, category, subcategory }: { page: num
 
 export const getSubcategoryProductDb = async (subcategory: Subcategories) =>
   await db.query.productsTable.findFirst({ where: (product, { eq }) => eq(product.subcategory, subcategory) })
+
+export const getProductDb = async (id: string) => await db.query.productsTable.findFirst({ where: (product, { eq }) => eq(product.id, id) })

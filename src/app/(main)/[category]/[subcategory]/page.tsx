@@ -1,6 +1,6 @@
 import BackButton from '@/components/back-button'
 import { InfiniteProducts } from '@/components/products'
-import { sectionTriggerStyle } from '@/components/sections'
+import { Section } from '@/components/sections'
 import { categories, type Categories, getCategoryTitle, type Subcategories, subcategories } from '@/lib/categories'
 import { notFound } from 'next/navigation'
 
@@ -16,7 +16,7 @@ export default async function SubcategoryPage({ params }: { params: Promise<{ ca
   if (!Object.keys(categories[category].subcategories).includes(subcategory)) notFound()
 
   return (
-    <div className={sectionTriggerStyle()}>
+    <Section>
       <BackButton />
 
       <header className="mb-26 flex flex-col items-center gap-2">
@@ -25,9 +25,9 @@ export default async function SubcategoryPage({ params }: { params: Promise<{ ca
         <p className="text-muted-foreground text-sm">{subcategories[subcategory].description}</p>
       </header>
 
-      <section>
-        <InfiniteProducts subcategory={subcategory} />
-      </section>
-    </div>
+      <main>
+        <InfiniteProducts filters={{ subcategory }} />
+      </main>
+    </Section>
   )
 }

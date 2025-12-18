@@ -12,7 +12,7 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
       <InitializeSessionSocket />
       <Navbar />
 
-      <main>
+      <main className="mx-auto 2xl:max-w-[1400px]">
         <Suspense
           fallback={
             <div className="min-h-svhminusnav grid place-items-center">
