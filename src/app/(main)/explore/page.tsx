@@ -1,3 +1,4 @@
+import { PageDescription, PageHeader, PageTitle } from '@/components/page-header'
 import PlantLogo from '@/components/plant-logo'
 import { NoProduct, ProductCard, ProductMapper } from '@/components/products'
 import { sectionTriggerStyle } from '@/components/sections'
@@ -18,26 +19,25 @@ export default async function ExplorePage() {
 
   return (
     <>
-      <header className="my-26 flex flex-col items-center gap-2">
-        <div className="flex items-center gap-4">
-          <PlantLogo className="size-8" />
-          <h1 className="font-calstavier text-4xl md:text-5xl">EXPLORE</h1>
-        </div>
-        <p className="text-muted-foreground text-sm">Find Your Perfect Pieces</p>
-      </header>
+      <PageHeader className="my-30">
+        <PageTitle withLogo size="lg">
+          EXPLORE
+        </PageTitle>
+        <PageDescription>Find Your Perfect Pieces</PageDescription>
+      </PageHeader>
 
       {categoriesAndProducts.map(({ category, description, productsData }) => (
         <section key={category} className="min-h-svh">
-          <header
+          <PageHeader
             style={{ backgroundImage: `url(/categories/${category}.png)` }}
             className={sectionTriggerStyle({
               className:
-                'after:from-background after:to-background/75 relative flex h-[50svh] flex-col justify-center gap-2 overflow-hidden bg-cover bg-fixed bg-center text-center *:relative *:z-1 after:absolute after:-inset-0.5 after:z-0 after:bg-linear-to-t sm:text-start',
+                'after:from-background after:to-background/75 relative h-[50svh] max-h-[400px] overflow-hidden bg-cover bg-fixed bg-center *:relative *:z-1 after:absolute after:-inset-0.5 after:z-0 after:bg-linear-to-t md:items-start',
             })}
           >
-            <h2 className="font-calstavier text-3xl">{getCategoryTitle(category)}</h2>
-            <p className="text-muted-foreground text-sm">{description}</p>
-          </header>
+            <PageTitle>{getCategoryTitle(category)}</PageTitle>
+            <PageDescription>{description}</PageDescription>
+          </PageHeader>
 
           <main className={sectionTriggerStyle()}>
             {productsData.totalProducts > 0 ? (

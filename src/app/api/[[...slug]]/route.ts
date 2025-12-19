@@ -11,6 +11,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ slug
   const { searchParams } = req.nextUrl
 
   if (route === 'auth') {
+    ;(res) => setTimeout(res, 5000)
     const sessionData = await validateSession()
     if (!sessionData) return NextResponse.json(null)
     const { sessionId, user } = sessionData

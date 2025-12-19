@@ -1,8 +1,9 @@
+import { Section } from '@/components/sections'
 import { Skeleton } from '@/components/ui/skeleton'
 
 export default function ProductDetailsLoading() {
   return (
-    <section className="mt-10 mb-10 flex flex-col items-center justify-center gap-20 lg:flex-row">
+    <Section className="mt-19 flex max-h-[calc(100svh-8.25rem)] flex-col items-center gap-20 overflow-hidden lg:flex-row lg:items-start lg:justify-center">
       <div className="flex w-full max-w-[300px] flex-col">
         <Skeleton className="aspect-square w-full" />
         <div className="mt-4 flex w-full gap-4 overflow-hidden px-4">
@@ -39,14 +40,14 @@ export default function ProductDetailsLoading() {
           <Skeleton className="w-1/2" />
         </div>
 
-        <ul className="space-y-6">
+        <ul>
           {[...Array(2)].map((_, i) => (
-            <li key={i} className="flex h-10 justify-between border-b">
-              <Skeleton className="h-5 w-40" />
+            <li key={i} className="flex justify-between border-b py-4">
+              <Skeleton className="h-6 w-40" />
             </li>
           ))}
         </ul>
       </main>
-    </section>
+    </Section>
   )
 }

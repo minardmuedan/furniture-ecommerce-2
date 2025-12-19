@@ -14,7 +14,7 @@ export const getProductsDb = async ({ page, category, subcategory }: { page: num
       limit: 20,
       offset: (page - 1) * 20,
       where: filters,
-      orderBy: (products, { asc }) => asc(products.createdAt),
+      orderBy: (products, { asc }) => [asc(products.createdAt), asc(products.id)],
       columns: { createdAt: false, updatedAt: false },
     }),
     page === 1 ? db.$count(productsTable, filters) : 0,

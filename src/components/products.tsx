@@ -5,13 +5,15 @@ import { useInfiniteFetcher } from '@/hooks/fetcher'
 import type { Categories, Subcategories } from '@/lib/categories'
 import type { Product } from '@/types/products'
 import { BrushCleaning, ImageOff } from 'lucide-react'
-import Image, { type ImageProps } from 'next/image'
+import Image from 'next/image'
 import Link from 'next/link'
 import { memo, useState } from 'react'
 import { Blurhash } from 'react-blurhash'
 import { InView } from 'react-intersection-observer'
 import { Skeleton } from './ui/skeleton'
 import { Spinner } from './ui/spinner'
+import { Button } from './ui/button'
+import { memaAction } from './mema-action'
 
 const ProductMapper = ({ children }: { children: React.ReactNode }) => {
   return <ul className="grid grid-cols-2 justify-center gap-4 sm:grid-cols-[repeat(auto-fit,200px)] sm:gap-12 lg:gap-16">{children}</ul>
@@ -49,28 +51,20 @@ const ProductCardSkeleton = () => {
 }
 
 const InfiniteProducts = ({ filters }: { filters?: { category?: Categories; subcategory?: Subcategories } }) => {
-  const {
-    data: products,
-    totalData,
-    remainingItems,
-    isLoading,
-    isValidating,
-    fetchMore,
-  } = useInfiniteFetcher({ path: '/api/products', searchParams: filters })
+  const { data, remainingItems, isLoading, isValidating, fetchMore } = useInfiniteFetcher({ path: '/api/products', searchParams: filters })
 
-  if (!isLoading && products.length <= 0) return <NoProduct />
-
+  if (!isLoading && data.length <= 0) return <NoProduct />
   return (
     <>
       <ProductMapper>
-        {products.map((product) => (
+        {data.map((product) => (
           <ProductCard key={product.id} product={product} />
         ))}
 
         {isValidating && [...Array(Math.min(isLoading ? 20 : remainingItems, 20))].map((_, i) => <ProductCardSkeleton key={i} />)}
       </ProductMapper>
 
-      <div className="text-muted-foreground flex justify-center pt-12 pb-6 text-sm">
+      <div className="text-muted-foreground flex justify-center pt-10 pb-6 text-sm">
         {isLoading || remainingItems > 0 ? (
           <InView key={remainingItems} onChange={(inview) => inview && fetchMore()} rootMargin="150px 0px">
             <span className="sr-only">trigger fetch more</span>
@@ -84,7 +78,7 @@ const InfiniteProducts = ({ filters }: { filters?: { category?: Categories; subc
   )
 }
 
-const ProductImage = ({ props }: { props?: Product['image'] }) => {
+const ProductImage = ({ props, className }: { props?: Product['image']; className?: string }) => {
   const [isLoaded, setIsLoaded] = useState(false)
   const [hasError, setHasError] = useState(false)
 
@@ -115,6 +109,7 @@ const ProductImage = ({ props }: { props?: Product['image'] }) => {
         onLoad={() => setIsLoaded(true)}
         onError={() => setHasError(true)}
         loader={({ src }) => `/product-images/${src}/300.png`}
+        className={className}
       />
     </div>
   )

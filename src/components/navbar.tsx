@@ -21,12 +21,10 @@ import { useEffect, useState } from 'react'
 import { useStore } from 'zustand'
 import PlantLogo from './plant-logo'
 import { ButtonLink } from './ui/button'
+import { Skeleton } from './ui/skeleton'
 
 export default function Navbar() {
   const [scrollY, setScrollY] = useState(0)
-  const isInitializing = useStore(sessionStore, (s) => s.isInitializing)
-  const isPending = useStore(sessionStore, (s) => s.isPending)
-  const session = useStore(sessionStore, (s) => s.session)
 
   useEffect(() => {
     let ticking = false
@@ -65,22 +63,9 @@ export default function Navbar() {
 
         <NavMenu />
 
-        {isInitializing ? (
-          <p>initializing session...</p>
-        ) : (
-          <div className={`${isPending ? 'animate-pulse opacity-75' : 'opacity-100'} flex items-center gap-1 transition-opacity`}>
-            {session ? (
-              <Usernav session={session} />
-            ) : (
-              <>
-                <ButtonLink href="/signup" variant="link">
-                  Signup
-                </ButtonLink>
-                <ButtonLink href="/login">Login</ButtonLink>
-              </>
-            )}
-          </div>
-        )}
+        <div className="flex w-40 justify-end">
+          <AuthNav />
+        </div>
       </div>
     </header>
   )
@@ -102,21 +87,21 @@ function NavMenu() {
     <NavigationMenu className="text-muted-foreground hidden md:flex">
       {navMenuList.map((menuList) => (
         <NavigationMenuList key={menuList.title}>
-          <NavigationMenuItem>
+          <NavigationMenuItem className="*:data-[active=true]:text-foreground *:data-[active=true]:font-calstavier *:data-[active=true]:text-lg *:data-[active=true]:underline">
             {'sublinks' in menuList ? (
               <>
-                <NavigationMenuTrigger
-                  className={
-                    Object.keys(categories).some((category) => pathname.startsWith(`/${category}`))
-                      ? 'text-foreground font-calstavier text-lg underline'
-                      : ''
-                  }
-                >
+                <NavigationMenuTrigger data-active={Object.keys(categories).some((category) => pathname.startsWith(`/${category}`))}>
                   categories
                 </NavigationMenuTrigger>
+
                 <NavigationMenuContent className="grid min-w-md grid-cols-2">
                   {Object.entries(menuList.sublinks).map(([category, categoryData]) => (
-                    <NavigationMenuLink key={category} asChild className={pathname.startsWith(`/${category}`) ? 'bg-accent' : ''}>
+                    <NavigationMenuLink
+                      key={category}
+                      data-active={pathname.startsWith(`/${category}`)}
+                      className="hover:bg-accent data-[active=true]:bg-accent"
+                      asChild
+                    >
                       <Link href={`/${category}`}>
                         <div>
                           <div className="flex items-center gap-2 font-normal">
@@ -139,14 +124,7 @@ function NavMenu() {
                 </NavigationMenuContent>
               </>
             ) : (
-              <NavigationMenuLink
-                asChild
-                className={cn(
-                  navigationMenuTriggerStyle(),
-                  'hover:bg-background/0',
-                  isActive(menuList.href) ? 'text-foreground font-calstavier text-base underline' : '',
-                )}
-              >
+              <NavigationMenuLink asChild data-active={isActive(menuList.href)} className={navigationMenuTriggerStyle()}>
                 <Link href={menuList.href}>{menuList.title}</Link>
               </NavigationMenuLink>
             )}
@@ -154,6 +132,29 @@ function NavMenu() {
         </NavigationMenuList>
       ))}
     </NavigationMenu>
+  )
+}
+
+function AuthNav() {
+  const isInitializing = useStore(sessionStore, (s) => s.isInitializing)
+  const isPending = useStore(sessionStore, (s) => s.isPending)
+  const session = useStore(sessionStore, (s) => s.session)
+
+  if (isInitializing) return <Skeleton className="h-8 w-[69px]" />
+
+  return (
+    <div className={`${isPending ? 'animate-pulse opacity-75' : 'opacity-100'} flex items-center gap-1 transition-opacity`}>
+      {session ? (
+        <Usernav session={session} />
+      ) : (
+        <>
+          <ButtonLink href="/signup" variant="link">
+            Signup
+          </ButtonLink>
+          <ButtonLink href="/login">Login</ButtonLink>
+        </>
+      )}
+    </div>
   )
 }
 

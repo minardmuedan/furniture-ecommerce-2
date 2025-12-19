@@ -1,4 +1,5 @@
 import BackButton from '@/components/back-button'
+import { PageDescription, PageHeader, PageTitle } from '@/components/page-header'
 import { InfiniteProducts } from '@/components/products'
 import { Section } from '@/components/sections'
 import { categories, type Categories, getCategoryTitle, type Subcategories, subcategories } from '@/lib/categories'
@@ -19,11 +20,11 @@ export default async function SubcategoryPage({ params }: { params: Promise<{ ca
     <Section>
       <BackButton />
 
-      <header className="mb-26 flex flex-col items-center gap-2">
-        <span className="text-muted-foreground/75 mt-2 mb-20 text-xs">{`${getCategoryTitle(category)} > ${getCategoryTitle(subcategory)}`}</span>
-        <h1 className="font-calstavier mt-1 mb-2 text-4xl uppercase md:text-5xl">{getCategoryTitle(subcategory)}</h1>
-        <p className="text-muted-foreground text-sm">{subcategories[subcategory].description}</p>
-      </header>
+      <PageHeader className="mb-29">
+        <span className="text-muted-foreground/75 mt-2 mb-20 text-xs">{getCategoryTitle(category)}</span>
+        <PageTitle size="lg">{getCategoryTitle(subcategory)}</PageTitle>
+        <PageDescription>{subcategories[subcategory].description}</PageDescription>
+      </PageHeader>
 
       <main>
         <InfiniteProducts filters={{ subcategory }} />

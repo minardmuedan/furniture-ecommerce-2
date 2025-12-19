@@ -1,11 +1,12 @@
+import { PageDescription, PageHeader, PageTitle } from '@/components/page-header'
 import { InfiniteProducts } from '@/components/products'
 import { SectionHeader, sectionTriggerStyle } from '@/components/sections'
 import { categories, getCategoryTitle, type Categories } from '@/lib/categories'
 import Image from 'next/image'
 import { notFound } from 'next/navigation'
 
-export default async function Categorylayout({ params, children }: { params: Promise<{ category: Categories }>; children: React.ReactNode }) {
-  const { category } = await params
+export default async function Categorylayout({ params, children }: { params: Promise<{ category: string }>; children: React.ReactNode }) {
+  const { category } = (await params) as { category: Categories }
   if (!categories[category]) notFound()
 
   return (
@@ -17,17 +18,17 @@ export default async function Categorylayout({ params, children }: { params: Pro
         </div>
       </div>
 
-      <header className="mt-20 text-center md:text-start">
-        <h1 className="font-calstavier text-3xl uppercase md:text-4xl">{getCategoryTitle(category)}</h1>
-        <p className="text-muted-foreground text-sm">{categories[category].description}</p>
-      </header>
+      <PageHeader className="mt-20 md:items-start">
+        <PageTitle>{getCategoryTitle(category)}</PageTitle>
+        <PageDescription>{categories[category].description}</PageDescription>
+      </PageHeader>
 
       <section>
         <SectionHeader as="h2">SUB CATEGORIES</SectionHeader>
         <nav className="grid grid-cols-6 justify-center gap-4 sm:grid-cols-3 md:grid-cols-[repeat(auto-fit,200px)] md:gap-8">{children}</nav>
       </section>
 
-      <main className="pb-20">
+      <main>
         <SectionHeader as="h2">{getCategoryTitle(category)} products</SectionHeader>
         <InfiniteProducts filters={{ category }} />
       </main>

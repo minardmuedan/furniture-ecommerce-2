@@ -1,32 +1,30 @@
 import BackButton from '@/components/back-button'
-import { InfiniteProducts, ProductImage } from '@/components/products'
+import { InfiniteProducts } from '@/components/products'
 import { SectionHeader, sectionTriggerStyle } from '@/components/sections'
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion'
 import { Button } from '@/components/ui/button'
 import { getProductDb } from '@/db/utils/products'
 import { getCategoryTitle } from '@/lib/categories'
-import { ArrowRight, Plus, ShoppingCart } from 'lucide-react'
+import { ArrowRight, ShoppingCart } from 'lucide-react'
 import { notFound } from 'next/navigation'
+import { ProductDetailsColor, ProductDetailsImage } from './_components'
 
 export default async function ProductDetailsPage({ params }: PageProps<'/products/[productId]'>) {
-  await new Promise((r) => setTimeout(r, 5000))
+  await new Promise((res) => setTimeout(res, 5000))
 
   const { productId } = await params
   const product = await getProductDb(productId)
   if (!product) notFound()
 
   return (
-    <>
-      <section className="mt-10 flex flex-col items-center justify-center gap-20 lg:flex-row">
-        <div>
-          <ProductImage props={product.image} />
+    <div className={sectionTriggerStyle()}>
+      <BackButton />
 
-          <ul className="mt-4 flex max-w-[300px] gap-4 overflow-hidden px-4">
-            {[...Array(4)].map((_, i) => (
-              <li key={i} className={`border-foreground rounded p-1 ${i === 0 ? 'border' : ''}`}>
-                <ProductImage props={product.image} />
-              </li>
-            ))}
-          </ul>
+      <section className="mt-10 flex flex-col items-center gap-20 lg:flex-row lg:items-stretch lg:justify-center">
+        <div className="relative">
+          <div className="sticky top-16">
+            <ProductDetailsImage images={[...Array(4)].map(() => product.image)} />
+          </div>
         </div>
 
         <main className="space-y-14">
@@ -37,13 +35,7 @@ export default async function ProductDetailsPage({ params }: PageProps<'/product
 
           <div>
             <h3 className="text-muted-foreground mb-1 text-sm">Available Color:</h3>
-            <ul className="flex gap-4">
-              {['#EAD2C6', '#FF9A64', '#0A0A0A', '#FFFFF'].map((backgroundColor, i) => (
-                <li key={i} style={{ backgroundColor }} className="size-10 rounded-md border">
-                  <span className="sr-only">color</span>
-                </li>
-              ))}
-            </ul>
+            <ProductDetailsColor colors={['#EAD2C6', '#FF9A64', '#0A0A0A', '#FFFFF']} />
           </div>
 
           <div className="flex items-end justify-between">
@@ -69,14 +61,17 @@ export default async function ProductDetailsPage({ params }: PageProps<'/product
             tenetur quasi praesentium cumque in dolore maiores numquam totam atque explicabo facere at ut mollitia.
           </p>
 
-          <ul className="space-y-6">
+          <Accordion type="multiple" className="max-w-[700px]">
             {['Material used', 'Other details'].map((label, i) => (
-              <li key={i} className="text-muted-foreground flex h-10 justify-between border-b">
-                <span className="text-sm">{label}</span>
-                <Plus className="size-6 opacity-75" />
-              </li>
+              <AccordionItem key={i} value={`item-${i}`}>
+                <AccordionTrigger className="data-[state=closed]:text-muted-foreground">{label}</AccordionTrigger>
+                <AccordionContent>
+                  Lorem ipsum dolor sit amet consectetur, adipisicing elit. Itaque suscipit id, distinctio repellendus recusandae quae veritatis illo
+                  quas totam laborum?
+                </AccordionContent>
+              </AccordionItem>
             ))}
-          </ul>
+          </Accordion>
         </main>
       </section>
 
@@ -84,6 +79,6 @@ export default async function ProductDetailsPage({ params }: PageProps<'/product
         <SectionHeader as="h2">browse {getCategoryTitle(product.subcategory)}</SectionHeader>
         <InfiniteProducts filters={{ subcategory: product.subcategory }} />
       </section>
-    </>
+    </div>
   )
 }

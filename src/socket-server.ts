@@ -5,12 +5,8 @@ import { Server, type DefaultEventsMap } from 'socket.io'
 
 const redis = await redisSubscriberConnect()
 await redis.subscribe({
-  EMAIL_VERIFICATION_CHANNEL: ({ sessionId, message }) => {
-    io.to(`session:${sessionId}`).emit('email-verified', { message })
-  },
-  INVALIDATE_SESSION_CHANNEL: ({ sessionId, message }) => {
-    io.to(`session:${sessionId}`).emit('invalidate-session', { message })
-  },
+  EMAIL_VERIFICATION_CHANNEL: ({ sessionId, message }) => io.to(`session:${sessionId}`).emit('email-verified', { message }),
+  INVALIDATE_SESSION_CHANNEL: ({ sessionId, message }) => io.to(`session:${sessionId}`).emit('invalidate-session', { message }),
 })
 
 const io = new Server<ClientToServerEvents, ServerToClientEvents, DefaultEventsMap, SocketData>(4000, {
@@ -20,7 +16,6 @@ const io = new Server<ClientToServerEvents, ServerToClientEvents, DefaultEventsM
 io.use(async (socket, next) => {
   const { sessionId } = socket.handshake.auth
   if (!sessionId) return next(new Error('No valid session id'))
-
   socket.data.sessionId = sessionId
   next()
 })
