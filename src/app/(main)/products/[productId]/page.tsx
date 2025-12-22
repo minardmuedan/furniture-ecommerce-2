@@ -3,17 +3,15 @@ import { InfiniteProducts } from '@/components/products'
 import { SectionHeader, sectionTriggerStyle } from '@/components/sections'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion'
 import { Button } from '@/components/ui/button'
-import { getProductDb } from '@/db/utils/products'
+import { getCachedProduct } from '@/lib/cached-products'
 import { getCategoryTitle } from '@/lib/categories'
 import { ArrowRight, ShoppingCart } from 'lucide-react'
 import { notFound } from 'next/navigation'
 import { ProductDetailsColor, ProductDetailsImage } from './_components'
 
 export default async function ProductDetailsPage({ params }: PageProps<'/products/[productId]'>) {
-  await new Promise((res) => setTimeout(res, 5000))
-
   const { productId } = await params
-  const product = await getProductDb(productId)
+  const product = await getCachedProduct(productId)
   if (!product) notFound()
 
   return (
@@ -27,7 +25,7 @@ export default async function ProductDetailsPage({ params }: PageProps<'/product
           </div>
         </div>
 
-        <main className="space-y-14">
+        <main className="max-w-[700px] space-y-14">
           <header>
             <span className="text-muted-foreground mb-1 text-xs">{`${getCategoryTitle(product.category)} > ${getCategoryTitle(product.subcategory)}`}</span>
             <h1 className="font-calstavier text-3xl md:text-4xl">{product.title}</h1>
@@ -41,7 +39,7 @@ export default async function ProductDetailsPage({ params }: PageProps<'/product
           <div className="flex items-end justify-between">
             <div className="flex flex-col gap-1">
               <h4 className="text-2xl">₱{product.price}</h4>
-              <span className="text-muted-foreground text-sm">stocks: {product.stocks}</span>
+              <span className="text-muted-foreground text-sm">stocks: todo: add watch stocks here </span>
             </div>
 
             <div aria-label="actions" className="flex items-center gap-2">
@@ -55,13 +53,13 @@ export default async function ProductDetailsPage({ params }: PageProps<'/product
             </div>
           </div>
 
-          <p className="text-muted-foreground max-w-[700px] text-sm">
+          <p className="text-muted-foreground text-sm">
             Lorem, ipsum dolor sit amet consectetur adipisicing elit. Suscipit autem sint excepturi consequuntur aliquid dolores molestiae dolor, id
             adipisci illo esse cupiditate laudantium rerum vero eum molestias exercitationem. Quibusdam, in! Omnis, expedita eos aliquid perferendis
             tenetur quasi praesentium cumque in dolore maiores numquam totam atque explicabo facere at ut mollitia.
           </p>
 
-          <Accordion type="multiple" className="max-w-[700px]">
+          <Accordion type="multiple">
             {['Material used', 'Other details'].map((label, i) => (
               <AccordionItem key={i} value={`item-${i}`}>
                 <AccordionTrigger className="data-[state=closed]:text-muted-foreground">{label}</AccordionTrigger>
@@ -77,7 +75,7 @@ export default async function ProductDetailsPage({ params }: PageProps<'/product
 
       <section className="mt-40">
         <SectionHeader as="h2">browse {getCategoryTitle(product.subcategory)}</SectionHeader>
-        <InfiniteProducts filters={{ subcategory: product.subcategory }} />
+        <InfiniteProducts filters={{ category: product.category, subcategory: product.subcategory }} />
       </section>
     </div>
   )

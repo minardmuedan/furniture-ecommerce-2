@@ -27,7 +27,7 @@ export default async function SubcategoryPage({ params }: { params: Promise<{ ca
       </PageHeader>
 
       <main>
-        <InfiniteProducts filters={{ subcategory }} />
+        <InfiniteProducts filters={{ category, subcategory }} />
       </main>
     </Section>
   )

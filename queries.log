@@ -1,0 +1,16 @@
+Query: select "id", "title", "prev_price", "price", "category", "subcategory", "image" from "products" "productsTable" where ("productsTable"."category" = $1 and "productsTable"."subcategory" = $2) order by "productsTable"."created_at" asc, "productsTable"."id" asc limit $3 -- params: ["dining-room", "chairs", 20]
+
+Query: select count(*) as count from "products" where ("products"."category" = $1 and "products"."subcategory" = $2); -- params: ["dining-room", "chairs"]
+
+Query: select "id", "title", "prev_price", "price", "category", "subcategory", "image" from "products" "productsTable" where "productsTable"."category" = $1 order by "productsTable"."created_at" asc, "productsTable"."id" asc limit $2 -- params: ["outdoor", 20]
+
+Query: select count(*) as count from "products" where "products"."category" = $1; -- params: ["outdoor"]
+
+Query: select "id", "title", "description", "prev_price", "price", "category", "subcategory", "image", "created_at" from "products" "productsTable" where "productsTable"."id" = $1 limit $2 -- params: ["nmt62kskyycz5f4gjg9f3xtb2wpu", 1]
+
+Query: select "id", "title", "prev_price", "price", "category", "subcategory", "image" from "products" "productsTable" where ("productsTable"."category" = $1 and "productsTable"."subcategory" = $2) order by "productsTable"."created_at" asc, "productsTable"."id" asc limit $3 -- params: ["outdoor", "benches", 20]
+
+Query: select count(*) as count from "products" where ("products"."category" = $1 and "products"."subcategory" = $2); -- params: ["outdoor", "benches"]
+
+Query: select "id", "title", "prev_price", "price", "category", "subcategory", "image" from "products" "productsTable" where ("productsTable"."category" = $1 and "productsTable"."subcategory" = $2) order by "productsTable"."created_at" asc, "productsTable"."id" asc limit $3 offset $4 -- params: ["outdoor", "benches", 20, 20]
+

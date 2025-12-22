@@ -1,9 +1,8 @@
 import { PageDescription, PageHeader, PageTitle } from '@/components/page-header'
-import PlantLogo from '@/components/plant-logo'
 import { NoProduct, ProductCard, ProductMapper } from '@/components/products'
 import { sectionTriggerStyle } from '@/components/sections'
 import { ButtonLink } from '@/components/ui/button'
-import { getProductsDb } from '@/db/utils/products'
+import { getCachedProducts } from '@/lib/cached-products'
 import { categories, getCategoryTitle } from '@/lib/categories'
 import { typedObjectEntries } from '@/lib/utils'
 import { ArrowRight } from 'lucide-react'
@@ -13,7 +12,7 @@ export default async function ExplorePage() {
     typedObjectEntries(categories).map(async ([category, { description }]) => ({
       category,
       description,
-      productsData: await getProductsDb({ page: 1, category }),
+      productsData: await getCachedProducts({ page: 1, category }),
     })),
   )
 

@@ -1,4 +1,4 @@
-import { getProductsDb } from '@/db/utils/products'
+import { getCachedProducts } from '@/lib/cached-products'
 import { categories, subcategories, type Categories, type Subcategories } from '@/lib/categories'
 import { validateSession } from '@/lib/session'
 import { notFound } from 'next/navigation'
@@ -11,7 +11,6 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ slug
   const { searchParams } = req.nextUrl
 
   if (route === 'auth') {
-    ;(res) => setTimeout(res, 5000)
     const sessionData = await validateSession()
     if (!sessionData) return NextResponse.json(null)
     const { sessionId, user } = sessionData
@@ -21,13 +20,13 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ slug
   const page = Number(searchParams.get('page')) || 1
 
   if (route === 'products') {
-    const category = searchParams.get('category') as Categories
-    const subcategory = searchParams.get('subcategory') as Subcategories
+    const categorySp = searchParams.get('category') as Categories
+    const subcategorySp = searchParams.get('subcategory') as Subcategories
 
-    const { products, totalProducts } = await getProductsDb({
+    const { products, totalProducts } = await getCachedProducts({
       page,
-      category: categories[category] ? category : undefined,
-      subcategory: subcategories[subcategory] ? subcategory : undefined,
+      category: categories[categorySp] ? categorySp : undefined,
+      subcategory: subcategorySp || undefined,
     })
     return NextResponse.json({ data: products, totalData: totalProducts })
   }

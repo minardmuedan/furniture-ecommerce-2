@@ -9,7 +9,7 @@ const subcategories = {
 
   patio: { description: 'Outdoor comfort for relaxing moments.' },
   'lounge-chairs': { description: 'Stylish seating for outdoor spaces.' },
-  tables: { description: 'Versatile surfaces for any occasion outdoors.' },
+  benches: { description: 'Durable seating for outdoor gatherings.' },
 
   beds: { description: 'Restful retreats for peaceful sleep.' },
   nightstands: { description: 'Convenient bedside storage solutions.' },
@@ -53,8 +53,8 @@ const categories = {
     description: 'Durable furniture designed for outdoor comfort, relaxation, and gatherings.',
     subcategories: {
       patio: subcategories['patio'],
+      benches: subcategories['benches'],
       'lounge-chairs': subcategories['lounge-chairs'],
-      tables: subcategories['tables'],
     },
   },
   bedroom: {

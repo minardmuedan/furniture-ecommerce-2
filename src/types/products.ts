@@ -5,13 +5,11 @@ export type ProductImage = { src: string; alt: string; color: string; blurHash: 
 
 export type Product = {
   id: string
-  description: string
   title: string
   prevPrice: string
   price: string
   category: Categories
   subcategory: Subcategories
-  stocks: number
   image: ProductImage
 }
 
