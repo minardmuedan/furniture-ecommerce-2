@@ -14,3 +14,11 @@ export type Product = {
 }
 
 export type PaginationProducts = Pagination<Product>
+
+export type CartDataProduct = {
+  id: string
+  price: string
+  productId: string
+  quantity: number
+  product: Product & { stocks: { availableQuantity: number } }
+}

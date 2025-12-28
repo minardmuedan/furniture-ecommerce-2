@@ -1,9 +1,9 @@
 import { getProductStocksDb } from '@/db/utils/product-stocks'
 import { getProductDb, getProductsDb, getSubcategoryProductDb } from '@/db/utils/products'
+import { getUserCartProductIdsDb, getUserCartProductsDb } from '@/db/utils/user-carts'
+import type { CartDataProduct } from '@/types/products'
 import { cacheLife, cacheTag } from 'next/cache'
 import { redis } from './redis'
-import { getUserCartProductIdsDb, getUserCartProductsDb } from '@/db/utils/user-carts'
-import { accumulateMetadata } from 'next/dist/lib/metadata/resolve-metadata'
 
 export const getCachedProducts = async (params: Parameters<typeof getProductsDb>[0]) => {
   'use cache'
@@ -26,12 +26,11 @@ export const getCachedProduct = async (productId: string) => {
   return await getProductDb(productId)
 }
 
-export const getCachedProductStock = async (productId: string) => {
+export const getCachedProductStock = async (productId: string): Promise<number> => {
   const redisData = await redis.get(`product-stocks:${productId}`)
   if (redisData !== null) return redisData
 
-  const dbData = await getProductStocksDb(productId)
-  if (!dbData) return null
+  const dbData = (await getProductStocksDb(productId)) as { availableQuantity: number }
 
   await redis.set(`product-stocks:${productId}`, dbData.availableQuantity, { expiration: { type: 'EX', value: 60 } })
   return dbData.availableQuantity
@@ -54,14 +53,7 @@ export const getCachedUserCartProducts = async (userId: string, page: number) =>
 
   const dbData = await getUserCartProductsDb({ userId, page })
 
-  const cartData = await Promise.all(
-    dbData.cartData.map(async ({ product, ...data }) => ({
-      ...data,
-      product: { ...product, stocks: (await getCachedProductStock(product.id)) as number },
-    })),
-  )
-
-  const reducedCartData = cartData.reduce<Map<string, (typeof cartData)[number]>>((acc, item) => {
+  const reducedCartData = dbData.cartData.reduce<Map<string, CartDataProduct>>((acc, item) => {
     const key = item.productId
 
     if (acc.has(key)) {

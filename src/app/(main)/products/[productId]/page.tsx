@@ -16,7 +16,7 @@ export default async function ProductDetailsPage({ params }: PageProps<'/product
   const product = await getCachedProduct(productId)
   if (!product) notFound()
 
-  const productStocksPromise = getCachedProductStock(productId) as Promise<number>
+  const productStocksPromise = getCachedProductStock(productId)
   return (
     <>
       <div

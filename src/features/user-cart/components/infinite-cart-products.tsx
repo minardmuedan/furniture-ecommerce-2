@@ -19,7 +19,7 @@ export default function InfiniteCartProducts() {
             <div className="flex flex-1 flex-col justify-between">
               <span>{cart.product.title}</span>
 
-              <CartQuantity cartId={cart.id} defaultQuantity={cart.quantity} max={cart.product.stocks} />
+              <CartQuantity cartId={cart.id} defaultQuantity={cart.quantity} max={cart.product.stocks.availableQuantity} />
             </div>
           </li>
         ))}

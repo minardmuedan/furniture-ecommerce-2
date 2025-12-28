@@ -16,7 +16,7 @@ export const getUserCartProductsDb = async ({ userId, page }: { userId: string; 
   const [cartData, totalCartData] = await Promise.all([
     db.query.userCartTable.findMany({
       columns: { userId: false, createdAt: false },
-      with: { product: { columns: { createdAt: false, updatedAt: false } } },
+      with: { product: { columns: { createdAt: false, updatedAt: false }, with: { stocks: { columns: { availableQuantity: true } } } } },
       limit: 20,
       offset: (page - 1) * 20,
       where: filter,

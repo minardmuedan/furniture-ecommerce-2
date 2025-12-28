@@ -18,8 +18,6 @@ export const usersTable = pgTable(
   (table) => [uniqueIndex('email_idx').on(table.email)],
 )
 
-export const userRelations = relations(usersTable, ({ many }) => ({ sessions: many(sessionsTable) }))
-
 export const sessionsTable = pgTable('sessions', {
   id: varchar().primaryKey(),
   userId: varchar('user_id')
@@ -31,10 +29,6 @@ export const sessionsTable = pgTable('sessions', {
   expiresAt: timestamp('expires_at').notNull(),
   logoutedAt: timestamp('logouted_at'),
 })
-
-export const sessionRelations = relations(sessionsTable, ({ one }) => ({
-  user: one(usersTable, { fields: [sessionsTable.userId], references: [usersTable.id] }),
-}))
 
 export const productsTable = pgTable('products', {
   id: varchar().primaryKey(),
@@ -70,6 +64,16 @@ export const userCartTable = pgTable('user_cart', {
   price: numeric({ precision: 10, scale: 2 }).notNull(),
   createdAt: timestamp('created_at').notNull().defaultNow(),
 })
+
+export const userRelations = relations(usersTable, ({ many }) => ({ sessions: many(sessionsTable) }))
+
+export const sessionRelations = relations(sessionsTable, ({ one }) => ({
+  user: one(usersTable, { fields: [sessionsTable.userId], references: [usersTable.id] }),
+}))
+
+export const productRelations = relations(productsTable, ({ one }) => ({
+  stocks: one(productStocksTable, { fields: [productsTable.id], references: [productStocksTable.productId] }),
+}))
 
 export const userCartRelations = relations(userCartTable, ({ one }) => ({
   product: one(productsTable, { fields: [userCartTable.productId], references: [productsTable.id] }),

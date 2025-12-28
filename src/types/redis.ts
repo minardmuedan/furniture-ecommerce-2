@@ -1,6 +1,5 @@
-import type { getUserCartProductsDb } from '@/db/utils/user-carts'
+import type { CartDataProduct, Product } from './products'
 import type { Session } from './session'
-import type { Product } from './products'
 
 export type RedisSchema = {
   [key: `ratelimiter:${string}`]: { tokens: number; lastUsed: number }
@@ -9,10 +8,7 @@ export type RedisSchema = {
   [key: `session:${string}`]: { session: Session | null }
   [key: `product-stocks:${string}`]: number
   [key: `user-cart:${string}`]: string[]
-  [key: `user-cart-products:${string}:${string}`]: {
-    cartData: { id: string; price: string; productId: string; quantity: number; product: Product & { stocks: number } }[]
-    totalCartData: number
-  }
+  [key: `user-cart-products:${string}:${string}`]: { cartData: CartDataProduct[]; totalCartData: number }
 }
 
 export type RedisPubSubSchema = {
