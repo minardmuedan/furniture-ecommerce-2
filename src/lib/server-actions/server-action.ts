@@ -1,10 +1,10 @@
 import { isRedirectError } from 'next/dist/client/components/redirect-error'
 import 'server-only'
 import { z } from 'zod'
-import { getIpAddress } from './headers'
-import { createRateLimiter, type RateLimiterParams } from './rate-limiter'
+import { getIpAddress } from '../headers'
+import { createRateLimiter, type RateLimiterParams } from '../rate-limiter'
 
-type RateLimiterInit = { key: string } & RateLimiterParams
+export type RateLimiterInit = { key: string } & RateLimiterParams
 type RateLimit = { ratelimit: { refillAt: number } }
 
 type RateLimitError = { isError: true; type: 'rate_limit' } & RateLimit
@@ -69,7 +69,7 @@ export function createServerAction<TSchema extends z.ZodObject | z.ZodIntersecti
   }
 }
 
-type ThrowFieldErrorFn<TFields> = typeof throwFieldZodError<TFields>
+export type ThrowFieldErrorFn<TFields> = typeof throwFieldZodError<TFields>
 
 function throwFieldZodError<TFields>(fields: Partial<Record<keyof TFields, string>>): never {
   throw new z.ZodError(Object.entries(fields).map(([key, value]) => ({ code: 'custom' as const, path: [key], message: value as string })))

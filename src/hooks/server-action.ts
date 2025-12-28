@@ -1,5 +1,4 @@
-import type { CustomErrorTypes, ServerAction } from '@/lib/server-action'
-import type { Route } from 'next'
+import type { CustomErrorTypes, ServerAction } from '@/lib/server-actions/server-action'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { useCountdown } from './countdown'
@@ -50,6 +49,7 @@ export function useServerAction<R, TFields>(
     execute: async (inputs: TFields) => {
       setIsPending(true)
       const actionData = await serverAction(inputs)
+      console.log(actionData)
       setIsPending(false)
 
       if (actionData.ratelimit) {

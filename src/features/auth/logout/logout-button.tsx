@@ -30,7 +30,7 @@ export default function LogoutButton({ variant, disabled, ...props }: Props) {
       onClick={() => execute()}
       {...props}
     >
-      Logout {rateLimiter.isLimit ? `${rateLimiter.secondsLeft}s` : isPending ? <Spinner /> : <LogOutIcon />}
+      {isPending ? <Spinner /> : <LogOutIcon />} Logout {rateLimiter.isLimit && `${rateLimiter.secondsLeft}s`}
     </Button>
   )
 }

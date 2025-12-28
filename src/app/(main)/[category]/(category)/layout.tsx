@@ -11,7 +11,7 @@ export default async function Categorylayout({ params, children }: { params: Pro
 
   return (
     <div className={sectionTriggerStyle({ className: 'space-y-40' })}>
-      <div aria-label="image backdrop" className="absolute inset-x-0 top-0 -z-1 aspect-video max-h-[65svh] w-full opacity-25">
+      <div aria-label="image backdrop" className="bg-accent absolute inset-x-0 top-0 -z-1 aspect-video max-h-[65svh] w-full opacity-25">
         <Image src={`/categories/${category}.png`} alt={`${category} cover`} priority fill quality={100} className="object-cover" />
         <div className="from-background to-background/0 absolute inset-0 bg-linear-to-t">
           <span className="sr-only">overlay</span>

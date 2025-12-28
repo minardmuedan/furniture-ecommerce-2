@@ -1,6 +1,6 @@
 'use server'
 
-import { createServerAction, CustomError } from '@/lib/server-action'
+import { createServerAction, CustomError } from '@/lib/server-actions/server-action'
 import { loginSchema } from '../schema'
 import { getUserByEmailDb } from '@/db/utils/users'
 import { compare } from 'bcryptjs'

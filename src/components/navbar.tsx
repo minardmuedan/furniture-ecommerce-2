@@ -1,5 +1,6 @@
 'use client'
 
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -11,15 +12,15 @@ import {
 } from '@/components/ui/navigation-menu'
 import LogoutButton from '@/features/auth/logout/logout-button'
 import { categories, getCategoryTitle } from '@/lib/categories'
-import { cn } from '@/lib/utils'
 import { sessionStore } from '@/lib/zustand-store/session'
-import { socketStore } from '@/lib/zustand-store/socket'
 import type { ClientSession } from '@/types/session'
+import { ScrollText, ShoppingCart } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import { Suspense, useEffect, useState } from 'react'
 import { useStore } from 'zustand'
 import PlantLogo from './plant-logo'
+import { Avatar, AvatarFallback } from './ui/avatar'
 import { ButtonLink } from './ui/button'
 import { Skeleton } from './ui/skeleton'
 
@@ -61,7 +62,9 @@ export default function Navbar() {
           <PlantLogo /> <span className="sr-only">home</span>
         </Link>
 
-        <NavMenu />
+        <Suspense>
+          <NavMenu />
+        </Suspense>
 
         <div className="flex w-40 justify-end">
           <AuthNav />
@@ -159,15 +162,32 @@ function AuthNav() {
 }
 
 function Usernav({ session }: { session: NonNullable<ClientSession> }) {
-  const isConnected = useStore(socketStore, (s) => s.isConnected)
+  const menuItems = [
+    { icon: ShoppingCart, label: 'My cart', href: '/transactions/cart' },
+    { icon: ScrollText, label: 'My orders', href: '/' },
+  ] as const
 
   return (
-    <div className="flex items-center gap-2">
-      <div className={`${isConnected ? 'bg-green-300' : 'animate-pulse bg-yellow-200'} size-2 rounded-full`}>
-        <span className="sr-only">connection indicator</span>
-      </div>
-      <span>hello, {session.user.username}</span>
-      <LogoutButton />
-    </div>
+    <DropdownMenu>
+      <DropdownMenuTrigger className="p-0.5">
+        <Avatar className="size-9">
+          <AvatarFallback>{session.user.username.slice(0, 2)}</AvatarFallback>
+        </Avatar>
+        <span className="sr-only">open user menu</span>
+      </DropdownMenuTrigger>
+
+      <DropdownMenuContent className="w-48" align="end">
+        {menuItems.map((item) => (
+          <DropdownMenuItem asChild key={item.label}>
+            <Link href={item.href}>
+              <item.icon /> {item.label}
+            </Link>
+          </DropdownMenuItem>
+        ))}
+
+        <DropdownMenuSeparator />
+        <LogoutButton variant="ghost" className="text-destructive hover:text-destructive hover:bg-destructive/20 w-full justify-start" />
+      </DropdownMenuContent>
+    </DropdownMenu>
   )
 }

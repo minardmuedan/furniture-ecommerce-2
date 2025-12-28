@@ -17,6 +17,15 @@ export function generateSecureRandomString(length: 24 | 28 = 24): string {
   return id
 }
 
-export const typedObjectKeys = <TKey extends string>(o: Record<TKey, unknown>) => Object.keys(o) as TKey[]
-// export const typedObjectValues = <TValues>(o: Record<string, TValues>) => Object.values(o) as TValues[]
 export const typedObjectEntries = <T extends Record<string, unknown>>(o: T) => Object.entries(o) as Array<[keyof T, T[keyof T]]>
+
+export const formatProductPrice = (price: string | number) => Number(price).toLocaleString('en-PH', { style: 'currency', currency: 'PHP' })
+
+export const getContrastColor = (hexColor: string) => {
+  const hex = hexColor.replace('#', '')
+  const r = parseInt(hex.slice(0, 2), 16)
+  const g = parseInt(hex.slice(2, 4), 16)
+  const b = parseInt(hex.slice(4, 6), 16)
+  const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255
+  return luminance > 0.5 ? '#000000' : '#FFFFFF'
+}

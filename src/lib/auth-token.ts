@@ -1,6 +1,6 @@
 import { DAY_IN_MS, FIFTEEN_MINUTES_IN_MS } from '@/lib/data-const'
 import { redis } from '@/lib/redis'
-import { CustomError } from '@/lib/server-action'
+import { CustomError } from '@/lib/server-actions/server-action'
 import { generateSecureRandomString } from '@/lib/utils'
 import type { RedisSchema } from '@/types/redis'
 import { jwtVerify, SignJWT } from 'jose'

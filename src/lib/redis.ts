@@ -9,7 +9,7 @@ async function ensureConnected() {
 }
 
 export const redis = {
-  set: async <K extends keyof RedisSchema>(key: K, value: RedisSchema[K], options?: SetOptions) =>
+  set: async <K extends keyof RedisSchema>(key: K, value: RedisSchema[K], options: SetOptions) =>
     (await ensureConnected()).set(key, JSON.stringify(value), options),
   get: async <K extends keyof RedisSchema>(key: K): Promise<RedisSchema[K] | null> => {
     const raw = await (await ensureConnected()).get(key)
@@ -18,6 +18,7 @@ export const redis = {
   del: async (key: keyof RedisSchema) => (await ensureConnected()).del(key),
   publish: async <K extends keyof RedisPubSubSchema>(channel: K, message: RedisPubSubSchema[K]) =>
     (await ensureConnected()).publish(channel, JSON.stringify(message)),
+  keys: async (pattern: keyof RedisSchema) => (await ensureConnected()).keys(pattern),
 }
 
 const subscriber = redisInstance.duplicate()

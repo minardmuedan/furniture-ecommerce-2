@@ -7,7 +7,7 @@ import { FIFTEEN_MINUTES_IN_SECONDS } from '@/lib/data-const'
 import { deleteCookie, getCookie, setCookie } from '@/lib/headers'
 import { mailerSendPasswordVerificationToken } from '@/lib/mailer'
 import { redis } from '@/lib/redis'
-import { createServerAction, CustomError } from '@/lib/server-action'
+import { createServerAction, CustomError } from '@/lib/server-actions/server-action'
 import { hash } from 'bcryptjs'
 import { changePasswordSchema, forgotPasswordSchema, jwtTokenSchema } from '../schema'
 

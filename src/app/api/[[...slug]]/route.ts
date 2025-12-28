@@ -1,5 +1,5 @@
-import { getCachedProducts } from '@/lib/cached-products'
-import { categories, subcategories, type Categories, type Subcategories } from '@/lib/categories'
+import { getCachedProducts, getCachedUserCartProductIds, getCachedUserCartProducts } from '@/lib/cached-products'
+import { categories, type Categories, type Subcategories } from '@/lib/categories'
 import { validateSession } from '@/lib/session'
 import { notFound } from 'next/navigation'
 import { NextResponse, type NextRequest } from 'next/server'
@@ -7,10 +7,10 @@ import { NextResponse, type NextRequest } from 'next/server'
 export async function GET(req: NextRequest, { params }: { params: Promise<{ slug?: string[] }> }) {
   const { slug } = await params
   if (!slug) notFound()
-  const route = slug.join('/')
+  const route = `/${slug.join('/')}`
   const { searchParams } = req.nextUrl
 
-  if (route === 'auth') {
+  if (route === '/auth') {
     const sessionData = await validateSession()
     if (!sessionData) return NextResponse.json(null)
     const { sessionId, user } = sessionData
@@ -19,7 +19,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ slug
 
   const page = Number(searchParams.get('page')) || 1
 
-  if (route === 'products') {
+  if (route === '/products') {
     const categorySp = searchParams.get('category') as Categories
     const subcategorySp = searchParams.get('subcategory') as Subcategories
 
@@ -29,6 +29,21 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ slug
       subcategory: subcategorySp || undefined,
     })
     return NextResponse.json({ data: products, totalData: totalProducts })
+  }
+
+  if (route === '/user/cart') {
+    const session = await validateSession()
+    if (!session) return new Response('unauthorized', { status: 401 })
+    const productIds = await getCachedUserCartProductIds(session.user.id)
+    return NextResponse.json(productIds)
+  }
+
+  if (route === '/user/cart/products') {
+    await new Promise((r) => setTimeout(r, 5000))
+    const session = await validateSession()
+    if (!session) return new Response('unauthorized', { status: 401 })
+    const { cartData, totalCartData } = await getCachedUserCartProducts(session.user.id, page)
+    return NextResponse.json({ data: cartData, totalData: totalCartData })
   }
 
   notFound()

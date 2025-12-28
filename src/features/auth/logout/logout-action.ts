@@ -1,6 +1,6 @@
 'use server'
 
-import { createServerAction } from '@/lib/server-action'
+import { createServerAction } from '@/lib/server-actions/server-action'
 import { invalidateSession } from '@/lib/session'
 
 export const logoutAction = createServerAction()

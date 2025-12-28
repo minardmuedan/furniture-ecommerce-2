@@ -1,5 +1,5 @@
 import { ProductImage } from '@/components/products'
-import { getCacheSubcategoryProduct } from '@/lib/cached-products'
+import { getCachedSubcategoryProduct } from '@/lib/cached-products'
 import { categories, getCategoryTitle, type Categories, type Subcategories } from '@/lib/categories'
 import { cn } from '@/lib/utils'
 import Link from 'next/link'
@@ -14,7 +14,7 @@ export default async function CategoryPage({ params }: { params: Promise<{ categ
   const subcategories = await Promise.all(
     Object.keys(categories[category].subcategories)
       .splice(0, 3)
-      .map(async (subcategory) => ({ subcategory, product: await getCacheSubcategoryProduct(subcategory as Subcategories) })),
+      .map(async (subcategory) => ({ subcategory, product: await getCachedSubcategoryProduct(subcategory as Subcategories) })),
   )
 
   return subcategories.map(({ subcategory, product }, i) => (

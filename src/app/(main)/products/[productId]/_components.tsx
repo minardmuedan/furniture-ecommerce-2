@@ -1,9 +1,14 @@
 'use client'
 
 import { ProductImage } from '@/components/products'
+import AddToCartButton from '@/features/user-cart/components/add-to-cart-btn'
+import CheckoutButton from '@/features/user-checkouts/components/checkout-button'
+import { getContrastColor } from '@/lib/utils'
+import { sessionStore } from '@/lib/zustand-store/session'
 import type { ProductImage as ProductImageType } from '@/types/products'
 import { Check } from 'lucide-react'
-import { useState } from 'react'
+import { use, useState } from 'react'
+import { useStore } from 'zustand'
 
 const ProductDetailsImage = ({ images }: { images: ProductImageType[] }) => {
   const [activeIndex, setActiveIndex] = useState(0)
@@ -32,15 +37,6 @@ const ProductDetailsImage = ({ images }: { images: ProductImageType[] }) => {
 const ProductDetailsColor = ({ colors }: { colors: string[] }) => {
   const [activeIndex, setActiveIndex] = useState(0)
 
-  const getContrastColor = (hexColor: string) => {
-    const hex = hexColor.replace('#', '')
-    const r = parseInt(hex.slice(0, 2), 16)
-    const g = parseInt(hex.slice(2, 4), 16)
-    const b = parseInt(hex.slice(4, 6), 16)
-    const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255
-    return luminance > 0.5 ? '#000000' : '#FFFFFF'
-  }
-
   return (
     <ul className="flex gap-4">
       {colors.map((color, index) => (
@@ -58,4 +54,19 @@ const ProductDetailsColor = ({ colors }: { colors: string[] }) => {
   )
 }
 
-export { ProductDetailsImage, ProductDetailsColor }
+const ProductActionButtons = ({ productId, productStocksPromise }: { productId: string; productStocksPromise: Promise<number> }) => {
+  const productStocks = use(productStocksPromise)
+  const session = useStore(sessionStore, (s) => s.session)
+
+  if (productStocks <= 0) return <div className="text-muted-foreground">out of stock</div>
+  // if (!session) return null
+
+  return (
+    <div aria-label="actions" className="flex items-center gap-2">
+      <AddToCartButton productId={productId} />
+      <CheckoutButton productId={productId} />
+    </div>
+  )
+}
+
+export { ProductActionButtons, ProductDetailsColor, ProductDetailsImage }

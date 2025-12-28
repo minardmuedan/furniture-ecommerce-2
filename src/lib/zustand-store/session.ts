@@ -15,11 +15,11 @@ type SessionStore = {
 
 export const sessionStore = createStore<SessionStore>((set, get) => ({
   isInitializing: true,
-  isPending: false,
+  isPending: true,
   session: null,
   fetchSession: async () => {
     const result = await fetcher('/api/auth')
-    set({ isInitializing: false })
+    set({ isInitializing: false, isPending: false })
     if (result.isError) {
       toast.error(result.message)
       return null

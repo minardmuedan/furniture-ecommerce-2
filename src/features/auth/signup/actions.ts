@@ -7,7 +7,7 @@ import { FIFTEEN_MINUTES_IN_SECONDS, THIRTY_MINUTES_IN_MS } from '@/lib/data-con
 import { deleteCookie, getCookie, setCookie } from '@/lib/headers'
 import { mailerSendEmailVerificationToken } from '@/lib/mailer'
 import { redis } from '@/lib/redis'
-import { createServerAction, CustomError } from '@/lib/server-action'
+import { createServerAction, CustomError } from '@/lib/server-actions/server-action'
 import { createSession, SESSION_COOKIE_KEY } from '@/lib/session'
 import { generateSecureRandomString } from '@/lib/utils'
 import { hash } from 'bcryptjs'

@@ -44,8 +44,33 @@ export const productsTable = pgTable('products', {
   price: numeric({ precision: 10, scale: 2 }).notNull(),
   category: varchar().$type<Categories>().notNull(),
   subcategory: varchar().$type<Subcategories>().notNull(),
-  stocks: integer().notNull(),
   image: jsonb().$type<ProductImage>().notNull(),
   createdAt: timestamp('created_at').notNull().defaultNow(),
   updatedAt: timestamp('updated_at').notNull().defaultNow(),
 })
+
+export const productStocksTable = pgTable('product-stocks', {
+  productId: varchar('product_id')
+    .references(() => productsTable.id)
+    .primaryKey(),
+  availableQuantity: integer('available_quantity').notNull(),
+  reservedQuantity: integer('reserved_quantity').notNull(),
+  updatedAt: timestamp('updated_at').notNull().defaultNow(),
+})
+
+export const userCartTable = pgTable('user_cart', {
+  id: varchar().primaryKey(),
+  userId: varchar('user_id')
+    .references(() => usersTable.id)
+    .notNull(),
+  productId: varchar('product_id')
+    .references(() => productsTable.id)
+    .notNull(),
+  quantity: integer().notNull(),
+  price: numeric({ precision: 10, scale: 2 }).notNull(),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+})
+
+export const userCartRelations = relations(userCartTable, ({ one }) => ({
+  product: one(productsTable, { fields: [userCartTable.productId], references: [productsTable.id] }),
+}))

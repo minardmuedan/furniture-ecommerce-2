@@ -1,11 +1,17 @@
 import { Toaster } from '@/components/ui/sonner'
 import type { Metadata } from 'next'
-import { Poppins } from 'next/font/google'
 import LocalFont from 'next/font/local'
 import './globals.css'
 
-const poppins = Poppins({ subsets: ['latin'], weight: ['300', '400', '500', '600'], preload: true })
-const calstavier = LocalFont({ src: 'calstavier.ttf', variable: '--font-calstavier' })
+const poppins = LocalFont({
+  src: [
+    { path: '../../public/fonts/poppins-light.ttf', weight: '300', style: 'normal' },
+    { path: '../../public/fonts/poppins-regular.ttf', weight: '400', style: 'normal' },
+    { path: '../../public/fonts/poppins-medium.ttf', weight: '500', style: 'normal' },
+    { path: '../../public/fonts/poppins-semibold.ttf', weight: '600', style: 'normal' },
+  ],
+})
+const calstavier = LocalFont({ src: '../../public/fonts/Calstavier.ttf', variable: '--font-calstavier' })
 
 export const metadata: Metadata = {
   title: 'Create Next App',

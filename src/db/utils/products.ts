@@ -12,11 +12,11 @@ export const getProductsDb = async ({ page, category, subcategory }: { page: num
 
   const [products, totalProducts] = await Promise.all([
     db.query.productsTable.findMany({
-      columns: { stocks: false, description: false, createdAt: false, updatedAt: false },
+      columns: { description: false, createdAt: false, updatedAt: false },
       limit: 20,
       offset: (page - 1) * 20,
       where: filters,
-      orderBy: (products, { asc }) => [asc(products.createdAt), asc(products.id)],
+      orderBy: (products, { desc }) => [desc(products.createdAt), desc(products.id)],
     }),
     page === 1 ? db.$count(productsTable, filters) : 0,
   ])
@@ -30,5 +30,5 @@ export const getSubcategoryProductDb = async (subcategory: Subcategories) =>
 export const getProductDb = async (id: string) =>
   await db.query.productsTable.findFirst({
     where: (product, { eq }) => eq(product.id, id),
-    columns: { stocks: false, updatedAt: false },
+    columns: { updatedAt: false },
   })

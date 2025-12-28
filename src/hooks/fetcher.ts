@@ -1,11 +1,16 @@
 import type { ApiSchema, PaginatedApiRoutes } from '@/types/routes'
+import useSWR from 'swr'
 import useSWRInfinite, { type SWRInfiniteConfiguration } from 'swr/infinite'
+
+export function useFetcher<T extends keyof ApiSchema>(url: T) {
+  return useSWR<ApiSchema[T]>(url)
+}
 
 export function useInfiniteFetcher<T extends PaginatedApiRoutes>(
   url: T | { path: T; searchParams?: Partial<Record<string, string>> },
   config?: Omit<SWRInfiniteConfiguration<ApiSchema[T]>, 'revalidateFirstPage'>,
 ) {
-  const { data, size, setSize, error, isLoading, isValidating } = useSWRInfinite<ApiSchema[T], { message: string }>(
+  const { data, size, setSize, error, isLoading, isValidating, mutate } = useSWRInfinite<ApiSchema[T], { message: string }>(
     (pageIndex) => {
       const page = `${pageIndex + 1}`
       if (typeof url === 'string') return `${url}?${new URLSearchParams({ page })}`
@@ -14,7 +19,7 @@ export function useInfiniteFetcher<T extends PaginatedApiRoutes>(
     { revalidateFirstPage: false, ...config },
   )
 
-  const flatData: ApiSchema[T]['data'] = data?.flatMap(({ data }) => data) ?? []
+  const flatData: ApiSchema[T]['data'] = data?.flatMap(({ data }) => data as any) ?? []
   const totalData = data?.[0]?.totalData
   const remainingItems = totalData != null ? totalData - flatData.length : 0
 
@@ -25,5 +30,5 @@ export function useInfiniteFetcher<T extends PaginatedApiRoutes>(
 
   const revalidateLast = () => setSize(size)
 
-  return { error, isLoading, isValidating, data: flatData, totalData, remainingItems, fetchMore, revalidateLast }
+  return { error, isLoading, isValidating, rawData: data, data: flatData, totalData, remainingItems, mutate, fetchMore, revalidateLast }
 }
