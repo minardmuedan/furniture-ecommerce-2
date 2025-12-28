@@ -1,7 +1,5 @@
 import { getProductStocksDb } from '@/db/utils/product-stocks'
 import { getProductDb, getProductsDb, getSubcategoryProductDb } from '@/db/utils/products'
-import { getUserCartProductIdsDb, getUserCartProductsDb } from '@/db/utils/user-carts'
-import type { CartDataProduct } from '@/types/products'
 import { cacheLife, cacheTag } from 'next/cache'
 import { redis } from './redis'
 
@@ -34,39 +32,4 @@ export const getCachedProductStock = async (productId: string): Promise<number> 
 
   await redis.set(`product-stocks:${productId}`, dbData.availableQuantity, { expiration: { type: 'EX', value: 60 } })
   return dbData.availableQuantity
-}
-
-export const getCachedUserCartProductIds = async (userId: string) => {
-  const redisData = await redis.get(`user-cart:${userId}`)
-  if (redisData !== null) return redisData
-
-  const dbData = await getUserCartProductIdsDb(userId)
-  const productIds = dbData.map((d) => d.productId)
-
-  await redis.set(`user-cart:${userId}`, productIds, { expiration: { type: 'EX', value: 60 } })
-  return productIds
-}
-
-export const getCachedUserCartProducts = async (userId: string, page: number) => {
-  const redisData = await redis.get(`user-cart-products:${userId}:${page}`)
-  if (redisData !== null) return redisData
-
-  const dbData = await getUserCartProductsDb({ userId, page })
-
-  const reducedCartData = dbData.cartData.reduce<Map<string, CartDataProduct>>((acc, item) => {
-    const key = item.productId
-
-    if (acc.has(key)) {
-      const existing = acc.get(key)!
-      existing.quantity += item.quantity
-      existing.price = (parseFloat(existing.product.price) * existing.quantity).toFixed(2)
-    } else acc.set(key, { ...item })
-
-    return acc
-  }, new Map())
-
-  const newDbData = { ...dbData, cartData: Array.from(reducedCartData.values()) }
-
-  await redis.set(`user-cart-products:${userId}:${page}`, newDbData, { expiration: { type: 'EX', value: 60 } })
-  return newDbData
 }

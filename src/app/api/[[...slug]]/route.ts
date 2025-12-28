@@ -1,4 +1,5 @@
-import { getCachedProducts, getCachedUserCartProductIds, getCachedUserCartProducts } from '@/lib/cached-products'
+import { getCachedUserCartProductIds, getCachedUserCartProducts } from '@/features/user-cart/lib/get-cart-data'
+import { getCachedProducts } from '@/lib/cached-products'
 import { categories, type Categories, type Subcategories } from '@/lib/categories'
 import { validateSession } from '@/lib/session'
 import { notFound } from 'next/navigation'
@@ -39,7 +40,6 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ slug
   }
 
   if (route === '/user/cart/products') {
-    await new Promise((r) => setTimeout(r, 5000))
     const session = await validateSession()
     if (!session) return new Response('unauthorized', { status: 401 })
     const { cartData, totalCartData } = await getCachedUserCartProducts(session.user.id, page)

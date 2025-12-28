@@ -19,6 +19,11 @@ export const redis = {
   publish: async <K extends keyof RedisPubSubSchema>(channel: K, message: RedisPubSubSchema[K]) =>
     (await ensureConnected()).publish(channel, JSON.stringify(message)),
   keys: async (pattern: keyof RedisSchema) => (await ensureConnected()).keys(pattern),
+  delKeys: async (pattern: keyof RedisSchema) => {
+    const redis = await ensureConnected()
+    const keys = await redis.keys(pattern)
+    return await Promise.all(keys.map(async (key) => await redis.del(key)))
+  },
 }
 
 const subscriber = redisInstance.duplicate()

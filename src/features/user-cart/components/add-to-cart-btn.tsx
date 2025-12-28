@@ -7,11 +7,15 @@ import { addToCartAction } from '../actions'
 import { useFetcher } from '@/hooks/fetcher'
 
 export default function AddToCartButton({ productId }: { productId: string }) {
-  const { data: cartProductIds } = useFetcher('/api/user/cart')
+  const { data: cartProductIds, mutate } = useFetcher('/api/user/cart')
 
   const { execute, isPending } = useServerAction(addToCartAction, {
     rateLimitKey: 'add-to-cart',
-    onError: ({ message }) => toast.error(message),
+    onError: ({ message }) => {
+      toast.error(message)
+      mutate()
+    },
+    onSuccess: () => mutate([...(cartProductIds || []), productId]),
   })
 
   const isAlreadyInCart = cartProductIds?.includes(productId)
