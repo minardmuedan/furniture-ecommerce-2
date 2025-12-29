@@ -35,7 +35,7 @@ export const socketStore = createStore<SocketStore>((set, get) => ({
     }
 
     get().disconnectSocket()
-    const newSocket = io(process.env.NEXT_PUBLIC_SOCKET_URL, { auth: { sessionId }, reconnectionAttempts: 5 }) as Socket
+    const newSocket = io(`http://localhost:${process.env.NEXT_PUBLIC_SOCKET_PORT}`, { auth: { sessionId }, reconnectionAttempts: 5 }) as Socket
 
     newSocket.io.on('reconnect', () => reconnectedToast())
     newSocket.io.on('reconnect_attempt', (attempt) => reconnectAttemptToast(attempt, newSocket.io.opts.reconnectionAttempts))

@@ -7,7 +7,7 @@ import { createAuthedServerAction } from '@/lib/server-actions/authed-server-act
 import { CustomError } from '@/lib/server-actions/server-action'
 import { generateSecureRandomString } from '@/lib/utils'
 import { addToCartSchema, updateCartQtySchema } from '@/types/zod-schema'
-import { getCachedUserCartProductIds } from './lib/get-cart-data'
+import { getCachedUserCartProductIds } from './lib/cart-data'
 
 export const addToCartAction = createAuthedServerAction(addToCartSchema)
   .ratelimit({ key: 'add-to-cart', capacity: 10, refillRate: 10, refillPerSeconds: 10 })

@@ -1,5 +1,5 @@
-import { ProductImage } from '@/components/products'
-import { getCachedSubcategoryProduct } from '@/lib/cached-products'
+import ProductImage from '@/features/products/components/product-image'
+import { getCachedSubcategoryProduct } from '@/features/products/lib/product-data'
 import { categories, getCategoryTitle, type Categories, type Subcategories } from '@/lib/categories'
 import { cn } from '@/lib/utils'
 import Link from 'next/link'

@@ -1,6 +1,6 @@
 import SignupEmailVerificationCheckerCard from '@/features/auth/signup/signup-email-verification'
 import SignupCardForm from '@/features/auth/signup/signup-form'
-import { getVerificationToken, isVerificationError } from '@/lib/auth-token'
+import { getVerificationToken, isVerificationError } from '@/features/auth/lib/auth-token'
 import { getCookie } from '@/lib/headers'
 
 export default async function SignupPage({ searchParams }: PageProps<'/signup'>) {

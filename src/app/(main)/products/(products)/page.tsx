@@ -1,6 +1,6 @@
 import { PageDescription, PageHeader, PageTitle } from '@/components/page-header'
-import { InfiniteProducts } from '@/components/products'
 import { Section } from '@/components/sections'
+import InfiniteProducts from '@/features/products/components/infinite-products'
 
 export default function ProductsPage() {
   return (

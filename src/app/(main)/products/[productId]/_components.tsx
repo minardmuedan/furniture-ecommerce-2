@@ -1,11 +1,11 @@
 'use client'
 
-import { ProductImage } from '@/components/products'
+import ProductImage from '@/features/products/components/product-image'
 import AddToCartButton from '@/features/user-cart/components/add-to-cart-btn'
 import CheckoutButton from '@/features/user-checkouts/components/checkout-button'
 import { getContrastColor } from '@/lib/utils'
 import { sessionStore } from '@/lib/zustand-store/session'
-import type { ProductImage as ProductImageType } from '@/types/products'
+import type { ProductImageType } from '@/types/products'
 import { Check } from 'lucide-react'
 import { use, useState } from 'react'
 import { useStore } from 'zustand'

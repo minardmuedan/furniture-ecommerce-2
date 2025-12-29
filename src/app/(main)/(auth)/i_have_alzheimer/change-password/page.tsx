@@ -1,6 +1,6 @@
 import ChangePasswordForm from '@/features/auth/forgot-password/change-password-form'
-import { getVerificationTokenByJwtToken } from '@/lib/auth-token'
-import { CustomError } from '@/lib/server-action'
+import { getVerificationTokenByJwtToken } from '@/features/auth/lib/auth-token'
+import { CustomError } from '@/lib/server-actions/server-action'
 import { notFound, redirect } from 'next/navigation'
 
 export default async function CreatePasswordPage({ searchParams }: PageProps<'/i_have_alzheimer/change-password'>) {

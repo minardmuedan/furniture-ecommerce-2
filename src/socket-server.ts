@@ -9,7 +9,9 @@ await redis.subscribe({
   INVALIDATE_SESSION_CHANNEL: ({ sessionId, message }) => io.to(`session:${sessionId}`).emit('invalidate-session', { message }),
 })
 
-const io = new Server<ClientToServerEvents, ServerToClientEvents, DefaultEventsMap, SocketData>(4000, {
+const PORT = Number(process.env.NEXT_PUBLIC_SOCKET_PORT!)
+
+const io = new Server<ClientToServerEvents, ServerToClientEvents, DefaultEventsMap, SocketData>(PORT, {
   cors: { origin: process.env.NEXT_PUBLIC_BASE_URL },
 })
 
@@ -34,4 +36,4 @@ io.on('connection', async (socket) => {
   })
 })
 
-console.log('🚀 Socket server running on http://localhost:4000')
+console.log(`🚀 Socket server running on http://localhost:${PORT}`)

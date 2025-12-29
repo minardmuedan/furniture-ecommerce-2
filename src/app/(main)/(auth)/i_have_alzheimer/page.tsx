@@ -1,7 +1,7 @@
 import PlantLogo from '@/components/plant-logo'
 import ForgotPasswordFormCard from '@/features/auth/forgot-password/forgot-password-form'
 import ForgotPasswordVerificationCheckerCard from '@/features/auth/forgot-password/forgot-password-verification'
-import { getVerificationToken, isVerificationError } from '@/lib/auth-token'
+import { getVerificationToken, isVerificationError } from '@/features/auth/lib/auth-token'
 import { getCookie } from '@/lib/headers'
 
 export default async function ForgotPasswordPage({ searchParams }: PageProps<'/i_have_alzheimer'>) {

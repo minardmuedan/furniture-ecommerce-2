@@ -1,6 +1,9 @@
 import { cn } from '@/lib/utils'
 import PlantLogo from './plant-logo'
 import { cva } from 'class-variance-authority'
+import { Button } from '@/components/ui/button'
+import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '@/components/ui/empty'
+import { AlertTriangle, RotateCcw } from 'lucide-react'
 
 const sectionTriggerStyle = cva('px-4 sm:px-8')
 
@@ -21,4 +24,23 @@ function SectionHeader({ as: Comp, children }: { as: 'h2' | 'h3'; children: Reac
   )
 }
 
-export { Section, SectionHeader, sectionTriggerStyle }
+function SectionError({ message }: { message: string }) {
+  return (
+    <Empty className="border-destructive border">
+      <EmptyHeader className="text-destructive">
+        <EmptyMedia variant="icon">
+          <AlertTriangle className="text-destructive" />
+        </EmptyMedia>
+        <EmptyTitle>{message}</EmptyTitle>
+        <EmptyDescription>Please reload the page</EmptyDescription>
+      </EmptyHeader>
+      <EmptyContent>
+        <Button onClick={() => window.location.reload()}>
+          Reload <RotateCcw />
+        </Button>
+      </EmptyContent>
+    </Empty>
+  )
+}
+
+export { Section, SectionHeader, SectionError, sectionTriggerStyle }

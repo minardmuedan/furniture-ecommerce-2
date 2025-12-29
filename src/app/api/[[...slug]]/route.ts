@@ -1,5 +1,5 @@
-import { getCachedUserCartProductIds, getCachedUserCartProducts } from '@/features/user-cart/lib/get-cart-data'
-import { getCachedProducts } from '@/lib/cached-products'
+import { getCachedProducts } from '@/features/products/lib/product-data'
+import { getCachedUserCartProductIds, getCachedUserCartProducts } from '@/features/user-cart/lib/cart-data'
 import { categories, type Categories, type Subcategories } from '@/lib/categories'
 import { validateSession } from '@/lib/session'
 import { notFound } from 'next/navigation'

@@ -1,6 +1,6 @@
 import { PageDescription, PageHeader, PageTitle } from '@/components/page-header'
-import { InfiniteProducts } from '@/components/products'
 import { SectionHeader, sectionTriggerStyle } from '@/components/sections'
+import InfiniteProducts from '@/features/products/components/infinite-products'
 import { categories, getCategoryTitle, type Categories } from '@/lib/categories'
 import Image from 'next/image'
 import { notFound } from 'next/navigation'

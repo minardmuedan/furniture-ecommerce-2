@@ -2,7 +2,7 @@
 
 import { deleteUserSessionsDb } from '@/db/utils/sessions'
 import { createUserDb, getUserByEmailDb, updateUserDb } from '@/db/utils/users'
-import { createVerificationToken, deleteVerificationToken, getVerificationToken, getVerificationTokenByJwtToken } from '@/lib/auth-token'
+import { createVerificationToken, deleteVerificationToken, getVerificationToken, getVerificationTokenByJwtToken } from '../lib/auth-token'
 import { FIFTEEN_MINUTES_IN_SECONDS, THIRTY_MINUTES_IN_MS } from '@/lib/data-const'
 import { deleteCookie, getCookie, setCookie } from '@/lib/headers'
 import { mailerSendEmailVerificationToken } from '@/lib/mailer'

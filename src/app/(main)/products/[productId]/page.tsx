@@ -1,14 +1,14 @@
 import BackButton from '@/components/back-button'
-import { InfiniteProducts } from '@/components/products'
 import { SectionHeader, sectionTriggerStyle } from '@/components/sections'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion'
 import { Skeleton } from '@/components/ui/skeleton'
-import { getCachedProduct, getCachedProductStock } from '@/lib/cached-products'
+import InfiniteProducts from '@/features/products/components/infinite-products'
+import { getCachedProduct, getCachedProductStock } from '@/features/products/lib/product-data'
 import { getCategoryTitle } from '@/lib/categories'
+import { formatProductPrice } from '@/lib/utils'
 import { notFound } from 'next/navigation'
 import { Suspense } from 'react'
 import { ProductActionButtons, ProductDetailsColor, ProductDetailsImage } from './_components'
-import { formatProductPrice } from '@/lib/utils'
 
 export default async function ProductDetailsPage({ params }: PageProps<'/products/[productId]'>) {
   const { productId } = await params

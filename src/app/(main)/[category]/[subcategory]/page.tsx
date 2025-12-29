@@ -1,7 +1,7 @@
 import BackButton from '@/components/back-button'
 import { PageDescription, PageHeader, PageTitle } from '@/components/page-header'
-import { InfiniteProducts } from '@/components/products'
 import { Section } from '@/components/sections'
+import InfiniteProducts from '@/features/products/components/infinite-products'
 import { categories, type Categories, getCategoryTitle, type Subcategories, subcategories } from '@/lib/categories'
 import { notFound } from 'next/navigation'
 

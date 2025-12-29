@@ -1,7 +1,7 @@
 import { getProductStocksDb } from '@/db/utils/product-stocks'
 import { getProductDb, getProductsDb, getSubcategoryProductDb } from '@/db/utils/products'
+import { redis } from '@/lib/redis'
 import { cacheLife, cacheTag } from 'next/cache'
-import { redis } from './redis'
 
 export const getCachedProducts = async (params: Parameters<typeof getProductsDb>[0]) => {
   'use cache'

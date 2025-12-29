@@ -1,7 +1,7 @@
 import type { Subcategories, Categories } from '@/lib/categories'
 import type { Pagination } from './helpers'
 
-export type ProductImage = { src: string; alt: string; color: string; blurHash: string }
+export type ProductImageType = { src: string; alt: string; color: string; blurHash: string }
 
 export type Product = {
   id: string
@@ -10,7 +10,7 @@ export type Product = {
   price: string
   category: Categories
   subcategory: Subcategories
-  image: ProductImage
+  image: ProductImageType
 }
 
 export type PaginationProducts = Pagination<Product>

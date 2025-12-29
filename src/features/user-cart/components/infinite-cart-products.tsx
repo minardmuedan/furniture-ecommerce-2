@@ -1,10 +1,10 @@
 'use client'
 
 import { InfiniteLoader } from '@/components/infinite-scroll-helpers'
-import { ProductImage } from '@/components/products'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useUserCartProducts } from '../hooks'
 import CartQuantity from './cart-quantity'
+import ProductImage from '@/features/products/components/product-image'
 
 export default function InfiniteCartProducts() {
   const { data, remainingItems, isValidating, isLoading, fetchMore } = useUserCartProducts()

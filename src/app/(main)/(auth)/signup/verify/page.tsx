@@ -1,8 +1,8 @@
 import PlantLogo from '@/components/plant-logo'
 import VerifyEmailFormCard from '@/features/auth/signup/verify-email-form'
-import { getVerificationTokenByJwtToken } from '@/lib/auth-token'
+import { getVerificationTokenByJwtToken } from '@/features/auth/lib/auth-token'
 import { getCookie } from '@/lib/headers'
-import { CustomError } from '@/lib/server-action'
+import { CustomError } from '@/lib/server-actions/server-action'
 import { SESSION_COOKIE_KEY } from '@/lib/session'
 import { notFound, redirect } from 'next/navigation'
 
