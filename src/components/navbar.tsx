@@ -82,7 +82,7 @@ function NavMenu() {
     { title: 'categories', sublinks: categories },
     { title: 'products', href: '/products' },
     { title: 'explore', href: '/explore' },
-    { title: 'about', href: '/' },
+    { title: 'about', href: '/about' },
   ] as const
 
   const isActive = (path: string) => pathname === path

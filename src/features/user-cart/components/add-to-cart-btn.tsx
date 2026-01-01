@@ -4,18 +4,18 @@ import { useServerAction } from '@/hooks/server-action'
 import { ShoppingCart } from 'lucide-react'
 import { toast } from 'sonner'
 import { addToCartAction } from '../actions'
-import { useFetcher } from '@/hooks/fetcher'
+import { useUserCartProductIds } from '../hooks'
 
 export default function AddToCartButton({ productId }: { productId: string }) {
-  const { data: cartProductIds, mutate } = useFetcher('/api/user/cart')
+  const { cartProductIds, mutate, revalidate } = useUserCartProductIds()
 
   const { execute, isPending } = useServerAction(addToCartAction, {
     rateLimitKey: 'add-to-cart',
     onError: ({ message }) => {
       toast.error(message)
-      mutate()
+      revalidate()
     },
-    onSuccess: () => mutate([...(cartProductIds || []), productId]),
+    onSuccess: () => mutate([...(cartProductIds || []), productId], { revalidate: false }),
   })
 
   const isAlreadyInCart = cartProductIds?.includes(productId)

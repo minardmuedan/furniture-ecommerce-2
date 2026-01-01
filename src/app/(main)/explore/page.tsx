@@ -1,11 +1,12 @@
 import { PageDescription, PageHeader, PageTitle } from '@/components/page-header'
-import { NoProduct, ProductCard, ProductMapper } from '@/components/products'
 import { sectionTriggerStyle } from '@/components/sections'
 import { ButtonLink } from '@/components/ui/button'
-import { getCachedProducts } from '@/lib/cached-products'
+import NoProduct from '@/features/products/components/no-product'
+import { getCachedProducts } from '@/features/products/lib/product-data'
 import { categories, getCategoryTitle } from '@/lib/categories'
 import { typedObjectEntries } from '@/lib/utils'
 import { ArrowRight } from 'lucide-react'
+import { ExploreProducts } from './_components'
 
 export default async function ExplorePage() {
   const categoriesAndProducts = await Promise.all(
@@ -41,11 +42,7 @@ export default async function ExplorePage() {
           <main className={sectionTriggerStyle()}>
             {productsData.totalProducts > 0 ? (
               <>
-                <ProductMapper>
-                  {productsData.products.map((product) => (
-                    <ProductCard key={product.id} product={product} />
-                  ))}
-                </ProductMapper>
+                <ExploreProducts products={productsData.products} />
 
                 <footer className="flex justify-center pt-10 pb-32">
                   <ButtonLink href={`/${category}`} variant="ghost" className="group text-muted-foreground">

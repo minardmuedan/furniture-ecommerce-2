@@ -1,3 +1,5 @@
+'use client'
+
 import type { Product } from '@/types/products'
 import { ImageOff } from 'lucide-react'
 import Image from 'next/image'

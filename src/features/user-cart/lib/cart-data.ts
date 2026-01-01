@@ -23,6 +23,8 @@ export const getCachedUserCartProducts = async (userId: string, page: number) =>
   return dbData
 }
 
+export const deleteCachedUserCartProducts = async (userId: string) => await redis.delKeys(`user-cart-products:${userId}:*`)
+
 export const deleteCachedUserCart = async (userId: string) => {
-  await Promise.all([await redis.del(`user-cart:${userId}`), await redis.delKeys(`user-cart-products:${userId}:*`)])
+  await Promise.all([await redis.del(`user-cart:${userId}`), await deleteCachedUserCartProducts(userId)])
 }

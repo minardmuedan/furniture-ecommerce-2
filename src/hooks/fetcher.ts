@@ -1,14 +1,14 @@
 import type { ApiSchema, PaginatedApiRoutes } from '@/types/routes'
-import useSWR from 'swr'
+import useSWR, { type SWRConfiguration } from 'swr'
 import useSWRInfinite, { type SWRInfiniteConfiguration } from 'swr/infinite'
 
-export function useFetcher<T extends keyof ApiSchema>(url: T) {
-  return useSWR<ApiSchema[T]>(url)
+export function useFetcher<T extends keyof ApiSchema>(url: T, config?: SWRConfiguration<ApiSchema[T]>) {
+  return useSWR<ApiSchema[T]>(url, config)
 }
 
 export function useInfiniteFetcher<T extends PaginatedApiRoutes>(
   url: T | { path: T; searchParams?: Partial<Record<string, string>> },
-  config?: Omit<SWRInfiniteConfiguration<ApiSchema[T]>, 'revalidateFirstPage'>,
+  config?: SWRInfiniteConfiguration<ApiSchema[T]>,
 ) {
   const { data, size, setSize, error, isLoading, isValidating, mutate } = useSWRInfinite<ApiSchema[T], { message: string }>(
     (pageIndex) => {
