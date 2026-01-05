@@ -1,4 +1,4 @@
-import { eq } from 'drizzle-orm'
+import { and, eq, inArray } from 'drizzle-orm'
 import { db } from '..'
 import { userCartTable } from '../schema'
 
@@ -31,5 +31,15 @@ export const getUserCartProductsDb = async ({ userId, page }: { userId: string; 
 
 export const getCartDb = async (id: string) => await db.query.userCartTable.findFirst({ where: (cart, { eq }) => eq(cart.id, id) })
 
-export const updateCartDb = async (cartId: string, values: Partial<Pick<typeof userCartTable.$inferInsert, 'quantity' | 'price'>>) =>
-  await db.update(userCartTable).set(values).where(eq(userCartTable.id, cartId))
+export const updateUserCartDb = async (
+  userId: string,
+  cartId: string,
+  values: Partial<Pick<typeof userCartTable.$inferInsert, 'quantity' | 'price'>>,
+) =>
+  await db
+    .update(userCartTable)
+    .set(values)
+    .where(and(eq(userCartTable.userId, userId), eq(userCartTable.id, cartId)))
+
+export const deleteUserCartDb = async (userId: string, cartIds: string[]) =>
+  await db.delete(userCartTable).where(and(eq(userCartTable.userId, userId), inArray(userCartTable.id, cartIds)))

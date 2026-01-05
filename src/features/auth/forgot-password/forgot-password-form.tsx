@@ -11,7 +11,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { ArrowLeft } from 'lucide-react'
 import { useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
-import { forgotPasswordSchema } from '../schema'
+import { forgotPasswordSchema } from '../lib/schema'
 import { forgotPasswordAction } from './actions'
 
 export default function ForgotPasswordFormCard({ initialFormError }: { initialFormError?: string }) {

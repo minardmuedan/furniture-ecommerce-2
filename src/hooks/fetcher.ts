@@ -19,8 +19,8 @@ export function useInfiniteFetcher<T extends PaginatedApiRoutes>(
     { revalidateFirstPage: false, ...config },
   )
 
-  const flatData: ApiSchema[T]['data'] = data?.flatMap(({ data }) => data as any) ?? []
-  const totalData = data?.[0]?.totalData
+  const flatData: ApiSchema[T]['data'] = data?.flatMap((d) => d.data as any) ?? []
+  const totalData = data?.[0]?.totalData || 0
   const remainingItems = totalData != null ? totalData - flatData.length : 0
 
   const fetchMore = () => {

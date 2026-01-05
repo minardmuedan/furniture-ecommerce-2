@@ -4,25 +4,31 @@ import { useServerAction } from '@/hooks/server-action'
 import { ShoppingCart } from 'lucide-react'
 import { toast } from 'sonner'
 import { addToCartAction } from '../actions'
-import { useUserCartProductIds } from '../hooks'
+import { useDeleteUserCartProductsCache, useUserCartProductIds } from '../hooks'
 
 export default function AddToCartButton({ productId }: { productId: string }) {
-  const { cartProductIds, mutate, revalidate } = useUserCartProductIds()
+  const deleteUserCartProductsCache = useDeleteUserCartProductsCache()
+  const { cartProductIds, mutate } = useUserCartProductIds()
 
-  const { execute, isPending } = useServerAction(addToCartAction, {
+  const action = useServerAction(addToCartAction, {
     rateLimitKey: 'add-to-cart',
     onError: ({ message }) => {
       toast.error(message)
-      revalidate()
+      mutate()
     },
     onSuccess: () => mutate([...(cartProductIds || []), productId], { revalidate: false }),
+    onSettled: () => deleteUserCartProductsCache(),
   })
 
   const isAlreadyInCart = cartProductIds?.includes(productId)
 
   return (
-    <Button variant="secondary" disabled={isAlreadyInCart || isPending} onClick={() => execute({ productId, quantity: 1 })}>
-      {isPending ? <Spinner /> : <ShoppingCart />}
+    <Button
+      variant="secondary"
+      disabled={action.rateLimiter.isLimit || isAlreadyInCart || action.isPending}
+      onClick={() => action.execute({ productId })}
+    >
+      {action.isPending ? <Spinner /> : <ShoppingCart />}
       <span className="sr-only sm:not-sr-only"> {isAlreadyInCart ? 'Already added' : 'Add to cart'}</span>
     </Button>
   )

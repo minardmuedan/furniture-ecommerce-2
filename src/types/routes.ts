@@ -1,18 +1,15 @@
 import type { Route } from 'next'
 import type { ClientSession } from './session'
-import type { CartDataProduct, PaginationProducts, Product } from './products'
+import type { CartDataProduct, PaginationProducts } from './products'
 import type { Pagination } from './helpers'
-
-type R<T extends string> = T | `${T}?${string}`
 
 export type ApiSchema = {
   '/api/auth': ClientSession
   '/api/user/cart': string[]
   [key: `/api/product-stocks/${string}`]: string
-} & {
-  [k in R<'/api/products'>]: PaginationProducts
-} & {
-  [k in R<'/api/user/cart/products'>]: Pagination<CartDataProduct>
+
+  '/api/user/cart/products': Pagination<CartDataProduct>
+  '/api/products': PaginationProducts
 }
 
 export type PaginatedApiRoutes = { [K in keyof ApiSchema]: ApiSchema[K] extends Pagination<any> ? K : never }[keyof ApiSchema]

@@ -1,13 +1,13 @@
 'use server'
 
-import { createServerAction, CustomError } from '@/lib/server-actions/server-action'
-import { loginSchema } from '../schema'
 import { getUserByEmailDb } from '@/db/utils/users'
-import { compare } from 'bcryptjs'
-import { createSession } from '@/lib/session'
-import { redis } from '@/lib/redis'
 import { DAY_IN_MS } from '@/lib/data-const'
+import { redis } from '@/lib/redis'
+import { createServerAction, CustomError } from '@/lib/server-actions/server-action'
+import { createSession } from '@/lib/session'
+import { compare } from 'bcryptjs'
 import { redirect } from 'next/navigation'
+import { loginSchema } from '../lib/schema'
 
 export const loginAction = createServerAction(loginSchema)
   .ratelimit({ key: 'login', capacity: 10, refillRate: 5, refillPerSeconds: 30 })

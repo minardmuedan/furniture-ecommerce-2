@@ -28,7 +28,7 @@ const ProductImage = ({ props, className }: { props?: Product['image']; classNam
         width="100%"
         height="100%"
         punch={1}
-        className={`absolute! inset-0! transition-opacity duration-300 ${isLoaded ? 'opacity-0' : 'opacity-50'}`}
+        className={`absolute! inset-0! -z-1 transition-opacity duration-300 ${isLoaded ? 'opacity-0' : 'opacity-50'}`}
       />
 
       <Image

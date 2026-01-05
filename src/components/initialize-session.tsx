@@ -10,7 +10,7 @@ export default function InitializeSessionSocket() {
   useEffect(() => {
     const getSessionAndInitializeSocket = async () => {
       const session = await sessionStore.getState().fetchSession()
-      if (session) socketStore.getState().connectSocket(session.sessionId, { router })
+      // if (session) socketStore.getState().connectSocket(session.sessionId, { router })
     }
 
     getSessionAndInitializeSocket()

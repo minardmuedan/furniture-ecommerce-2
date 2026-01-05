@@ -29,7 +29,7 @@ export default function CartQuantity({ cartId, defaultQuantity, max }: { cartId:
   }, [quantity, defaultQuantity])
 
   return (
-    <div className="flex items-center gap-2">
+    <div onClick={(e) => e.stopPropagation()} className="pointer-events-auto flex w-fit items-center gap-2">
       <div className="[&>button]:text-muted-foreground flex w-fit items-center rounded-md border px-1 [&>button]:h-8 [&>button]:disabled:pointer-events-none [&>button]:disabled:opacity-25 *:[&>svg]:size-5">
         <button aria-label="increment" disabled={quantity <= 1} onClick={() => setQuantity((prev) => Math.max(prev - 1, 1))}>
           <Minus />

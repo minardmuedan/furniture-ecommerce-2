@@ -12,7 +12,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { ArrowRight } from 'lucide-react'
 import { useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
-import { signupSchema } from '../schema'
+import { signupSchema } from '../lib/schema'
 import { signupAction } from './actions'
 
 export default function SignupCardForm({ initialFormError }: { initialFormError?: string }) {

@@ -1,27 +1,28 @@
 'use client'
 
 import { InfiniteLoader } from '@/components/infinite-scroll-helpers'
-import { Skeleton } from '@/components/ui/skeleton'
+import { useState } from 'react'
 import { useUserCartProducts } from '../hooks'
-import CartQuantity from './cart-quantity'
-import ProductImage from '@/features/products/components/product-image'
+import CartProductList from './cart-product-list'
+import CartProductSkeleton from './cart-product-skeleton'
+import CartProductsHeader from './cart-products-header'
 
 export default function InfiniteCartProducts() {
+  const [selectedIds, setSelectedIds] = useState<string[]>([])
   const { data, remainingItems, isValidating, isLoading, fetchMore } = useUserCartProducts()
+
+  const toggleSelect = (cartId: string) => {
+    if (selectedIds.includes(cartId)) setSelectedIds((prev) => prev.filter((id) => id !== cartId))
+    else setSelectedIds((prev) => [...prev, cartId])
+  }
 
   return (
     <>
-      <ul className={`flex flex-col gap-2 ${isValidating ? 'pointer-events-none' : ''}`}>
+      <CartProductsHeader selectedIds={selectedIds} setSelectedIds={setSelectedIds} />
+
+      <ul className={`flex flex-col gap-2 ${isValidating ? 'pointer-events-none animate-pulse' : ''} `}>
         {data.map((cart) => (
-          <li key={cart.id} className="flex gap-10 rounded-xl border px-5 py-3">
-            <ProductImage props={cart.product.image} className="w-24" />
-
-            <div className="flex flex-1 flex-col justify-between">
-              <span>{cart.product.title}</span>
-
-              <CartQuantity cartId={cart.id} defaultQuantity={cart.quantity} max={cart.product.stocks.availableQuantity} />
-            </div>
-          </li>
+          <CartProductList key={cart.id} cart={cart} selectedIds={selectedIds} onSelect={() => toggleSelect(cart.id)} />
         ))}
 
         {isValidating && [...Array(Math.min(isLoading ? 3 : remainingItems, 20))].map((_, i) => <CartProductSkeleton key={i} />)}
@@ -29,17 +30,5 @@ export default function InfiniteCartProducts() {
 
       <InfiniteLoader isLoading={isLoading} remainingItems={remainingItems} fetchMore={fetchMore} />
     </>
-  )
-}
-
-function CartProductSkeleton() {
-  return (
-    <li className="flex gap-10 rounded-xl border px-5 py-3">
-      <Skeleton className="size-24" />
-      <div className="flex flex-1 flex-col justify-between">
-        <Skeleton className="h-6 w-full max-w-72" />
-        <Skeleton className="h-[34px] w-[74px]" />
-      </div>
-    </li>
   )
 }

@@ -9,7 +9,7 @@ import { mailerSendPasswordVerificationToken } from '@/lib/mailer'
 import { redis } from '@/lib/redis'
 import { createServerAction, CustomError } from '@/lib/server-actions/server-action'
 import { hash } from 'bcryptjs'
-import { changePasswordSchema, forgotPasswordSchema, jwtTokenSchema } from '../schema'
+import { changePasswordSchema, forgotPasswordSchema, jwtTokenSchema } from '../lib/schema'
 
 export const forgotPasswordAction = createServerAction(forgotPasswordSchema)
   .ratelimit({ key: 'forgot-password', capacity: 10, refillRate: 5, refillPerSeconds: 30 })

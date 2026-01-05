@@ -13,7 +13,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { ArrowLeft } from 'lucide-react'
 import { Controller, useForm } from 'react-hook-form'
 import { toast } from 'sonner'
-import { loginSchema } from '../schema'
+import { loginSchema } from '../lib/schema'
 import { loginAction } from './login-action'
 
 export default function LoginFormCard() {

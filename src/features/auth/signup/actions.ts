@@ -2,7 +2,6 @@
 
 import { deleteUserSessionsDb } from '@/db/utils/sessions'
 import { createUserDb, getUserByEmailDb, updateUserDb } from '@/db/utils/users'
-import { createVerificationToken, deleteVerificationToken, getVerificationToken, getVerificationTokenByJwtToken } from '../lib/auth-token'
 import { FIFTEEN_MINUTES_IN_SECONDS, THIRTY_MINUTES_IN_MS } from '@/lib/data-const'
 import { deleteCookie, getCookie, setCookie } from '@/lib/headers'
 import { mailerSendEmailVerificationToken } from '@/lib/mailer'
@@ -12,7 +11,8 @@ import { createSession, SESSION_COOKIE_KEY } from '@/lib/session'
 import { generateSecureRandomString } from '@/lib/utils'
 import { hash } from 'bcryptjs'
 import type { Route } from 'next'
-import { jwtTokenSchema, signupSchema } from '../schema'
+import { createVerificationToken, deleteVerificationToken, getVerificationToken, getVerificationTokenByJwtToken } from '../lib/auth-token'
+import { jwtTokenSchema, signupSchema } from '../lib/schema'
 
 export const signupAction = createServerAction(signupSchema)
   .ratelimit({ key: 'signup', capacity: 5, refillRate: 5, refillPerSeconds: 30 })
