@@ -8,7 +8,8 @@ import { getCategoryTitle } from '@/lib/categories'
 import { formatProductPrice } from '@/lib/utils'
 import { notFound } from 'next/navigation'
 import { Suspense } from 'react'
-import { ProductActionButtons, ProductDetailsColor, ProductDetailsImage } from './_components'
+import { ProductActionButtons, ProductDetailsImage } from './_components'
+import ProductDetailsColor from '@/features/products/components/product-details-color'
 
 export default async function ProductDetailsPage({ params }: PageProps<'/products/[productId]'>) {
   const { productId } = await params
@@ -60,7 +61,7 @@ export default async function ProductDetailsPage({ params }: PageProps<'/product
               </div>
 
               <Suspense>
-                <ProductActionButtons productId={product.id} productStocksPromise={productStocksPromise} />
+                <ProductActionButtons product={product} productStocksPromise={productStocksPromise} />
               </Suspense>
             </div>
 

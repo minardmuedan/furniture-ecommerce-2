@@ -124,6 +124,6 @@
     @apply scroll-smooth;
   }
   body {
-    @apply bg-background text-foreground font-light [&_svg]:stroke-[1.75];
+    @apply bg-background text-foreground overflow-x-hidden font-light [&_svg]:stroke-[1.75];
   }
 }

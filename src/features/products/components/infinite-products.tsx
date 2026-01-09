@@ -26,7 +26,7 @@ export default function InfiniteProducts({ filters }: { filters?: { category?: C
         {isValidating && [...Array(Math.min(isLoading ? 20 : remainingItems, 20))].map((_, i) => <ProductCardSkeleton key={i} />)}
       </ProductMapper>
 
-      <InfiniteLoader isLoading={isLoading} remainingItems={remainingItems} fetchMore={fetchMore} />
+      <InfiniteLoader isPending={isValidating} remainingItems={remainingItems} fetchMore={fetchMore} />
     </>
   )
 }

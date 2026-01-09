@@ -2,6 +2,7 @@ import ProductImage from '@/features/products/components/product-image'
 import type { CartDataProduct } from '@/types/products'
 import CartQuantity from './cart-quantity'
 import { Checkbox } from '@/components/ui/checkbox'
+import { motion } from 'motion/react'
 
 type Props = { cart: CartDataProduct; selectedIds: string[]; onSelect: () => void }
 
@@ -10,8 +11,9 @@ export default function CartProductList({ cart, selectedIds, onSelect }: Props) 
   const isCartSelected = selectedIds.includes(cart.id)
 
   return (
-    <li
+    <motion.li
       onClick={isSomeSelected ? onSelect : undefined}
+      exit={{ x: 100, opacity: 0 }}
       className={`group flex h-26 overflow-hidden rounded-xl border ${isCartSelected ? 'border-primary/40 bg-accent/50' : ''} ${isSomeSelected ? 'select-none *:pointer-events-none' : ''}`}
     >
       <div onClick={onSelect} className="flex items-center pr-5 pl-3 select-none">
@@ -27,6 +29,6 @@ export default function CartProductList({ cart, selectedIds, onSelect }: Props) 
         <span className="text-sm">{cart.product.title}</span>
         <CartQuantity cartId={cart.id} defaultQuantity={cart.quantity} max={cart.product.stocks.availableQuantity} />
       </div>
-    </li>
+    </motion.li>
   )
 }

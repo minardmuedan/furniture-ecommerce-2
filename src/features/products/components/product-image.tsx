@@ -20,26 +20,24 @@ const ProductImage = ({ props, className }: { props?: Product['image']; classNam
     )
 
   return (
-    <div className="relative aspect-square overflow-hidden">
+    <div className="relative flex aspect-square w-fit items-center justify-center overflow-hidden">
       <MemoizedBlurhash
         hash={props.blurHash}
         resolutionX={32}
         resolutionY={32}
-        width="100%"
-        height="100%"
         punch={1}
-        className={`absolute! inset-0! -z-1 transition-opacity duration-300 ${isLoaded ? 'opacity-0' : 'opacity-50'}`}
+        className={`absolute! -z-1 transition-opacity duration-300 ${isLoaded ? 'opacity-0' : 'opacity-50'}`}
       />
 
       <Image
         src={props.src}
         alt={props.alt}
-        width={300}
-        height={300}
-        onLoad={() => setIsLoaded(true)}
+        width={props.width}
+        height={props.height}
+        onLoadingComplete={() => setIsLoaded(true)}
         onError={() => setHasError(true)}
-        loader={({ src }) => `/product-images/${src}/300.png`}
-        className={className}
+        loader={({ src }) => `/product-images/${src}/c-r-300.png`}
+        className={`${className}`}
       />
     </div>
   )

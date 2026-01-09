@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button'
 import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '@/components/ui/empty'
 import { AlertTriangle, RotateCcw } from 'lucide-react'
 
-const sectionTriggerStyle = cva('px-4 sm:px-8')
+const sectionTriggerStyle = cva('px-4 sm:px-8 ')
 
 function Section({ children, className, ...props }: React.ComponentProps<'section'>) {
   return (

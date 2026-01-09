@@ -6,6 +6,7 @@ import { useUserCartProducts } from '../hooks'
 import CartProductList from './cart-product-list'
 import CartProductSkeleton from './cart-product-skeleton'
 import CartProductsHeader from './cart-products-header'
+import { AnimatePresence } from 'motion/react'
 
 export default function InfiniteCartProducts() {
   const [selectedIds, setSelectedIds] = useState<string[]>([])
@@ -21,14 +22,15 @@ export default function InfiniteCartProducts() {
       <CartProductsHeader selectedIds={selectedIds} setSelectedIds={setSelectedIds} />
 
       <ul className={`flex flex-col gap-2 ${isValidating ? 'pointer-events-none animate-pulse' : ''} `}>
-        {data.map((cart) => (
-          <CartProductList key={cart.id} cart={cart} selectedIds={selectedIds} onSelect={() => toggleSelect(cart.id)} />
-        ))}
-
+        <AnimatePresence mode="popLayout">
+          {data.map((cart) => (
+            <CartProductList key={cart.id} cart={cart} selectedIds={selectedIds} onSelect={() => toggleSelect(cart.id)} />
+          ))}
+        </AnimatePresence>
         {isValidating && [...Array(Math.min(isLoading ? 3 : remainingItems, 20))].map((_, i) => <CartProductSkeleton key={i} />)}
       </ul>
 
-      <InfiniteLoader isLoading={isLoading} remainingItems={remainingItems} fetchMore={fetchMore} />
+      <InfiniteLoader isPending={isValidating} remainingItems={remainingItems} fetchMore={fetchMore} />
     </>
   )
 }
