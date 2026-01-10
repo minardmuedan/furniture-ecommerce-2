@@ -21,11 +21,21 @@ export const typedObjectEntries = <T extends Record<string, unknown>>(o: T) => O
 
 export const formatProductPrice = (price: string | number) => Number(price).toLocaleString('en-PH', { style: 'currency', currency: 'PHP' })
 
+export const rgbToHex = ({ r, g, b }: { r: number; g: number; b: number }) => '#' + [r, g, b].map((x) => x.toString(16).padStart(2, '0')).join('')
+
 export const getContrastColor = (hexColor: string) => {
   const hex = hexColor.replace('#', '')
-  const r = parseInt(hex.slice(0, 2), 16)
-  const g = parseInt(hex.slice(2, 4), 16)
-  const b = parseInt(hex.slice(4, 6), 16)
-  const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255
-  return luminance > 0.5 ? '#000000' : '#FFFFFF'
+  const r = parseInt(hex.substring(0, 2), 16)
+  const g = parseInt(hex.substring(2, 4), 16)
+  const b = parseInt(hex.substring(4, 6), 16)
+  const brightness = (r * 299 + g * 587 + b * 114) / 1000
+  return Number((brightness / 255).toFixed(2))
+}
+
+export const addOpacityToHex = (hex: string, opacity: number) => {
+  const cleanHex = hex.replace('#', '')
+  const alphaDecimal = Math.round(opacity * 255)
+  let alphaHex = alphaDecimal.toString(16)
+  if (alphaHex.length === 1) alphaHex = `0${alphaHex}`
+  return `#${cleanHex}${alphaHex.toUpperCase()}`
 }

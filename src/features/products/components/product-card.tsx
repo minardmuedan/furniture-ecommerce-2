@@ -4,6 +4,8 @@ import Link from 'next/link'
 import { memo } from 'react'
 import ProductImage from './product-image'
 import { Skeleton } from '@/components/ui/skeleton'
+import { getProductHoverColor } from '../lib/get-hover-color'
+import { getContrastColor } from '@/lib/utils'
 
 const ProductCard = memo(({ product, inCart }: { product: Product; inCart: boolean }) => {
   return (
@@ -11,15 +13,15 @@ const ProductCard = memo(({ product, inCart }: { product: Product; inCart: boole
       <Link href={`/products/${product.id}`}>
         <div
           data-incart={inCart}
-          style={{ '--image-color': product.image.color } as React.CSSProperties}
-          className="group h-full gap-2 rounded-md transition-colors ease-out hover:bg-(--image-color)/35 data-[incart=true]:opacity-50"
+          style={{ '--hover-color': getProductHoverColor(product.image.color) } as React.CSSProperties}
+          className="group h-full gap-2 rounded-md transition-colors ease-out hover:bg-(--hover-color) data-[incart=true]:opacity-50"
         >
           <div className={`flex justify-end px-2 pt-2 ${inCart ? 'opacity-100' : 'opacity-0'}`}>
             <ShoppingCart className="text-muted-foreground size-4" />
           </div>
 
           <div className="px-6">
-            <ProductImage props={product.image} />
+            <ProductImage {...product.image} />
           </div>
 
           <div className="px-6 pb-6">

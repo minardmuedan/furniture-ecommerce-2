@@ -9,8 +9,10 @@ import { motion } from 'motion/react'
 import { use, useState } from 'react'
 import { useStore } from 'zustand'
 
-const ProductDetailsImage = ({ images }: { images: ProductImageType[] }) => {
-  const AnimatedProductImage = motion.create(ProductImage)
+const AnimatedProductImage = motion.create(ProductImage)
+
+const ProductDetailsImage = ({ image: { previewImages, ...main } }: { image: ProductImageType }) => {
+  const images = [main, ...previewImages.map((src) => ({ ...main, src }))]
 
   const [activeIndex, setActiveIndex] = useState(0)
   const selectedImage = images[activeIndex]
@@ -18,7 +20,7 @@ const ProductDetailsImage = ({ images }: { images: ProductImageType[] }) => {
   return (
     <>
       <div key={activeIndex} className="animate-in fade-in duration-1000">
-        <AnimatedProductImage layoutId={`layout-${selectedImage.src}`} props={selectedImage} />
+        <AnimatedProductImage layoutId={`layout-${selectedImage.src}`} {...selectedImage} />
       </div>
 
       <ul className="mt-4 flex max-w-[300px] gap-4 overflow-hidden px-4">
@@ -28,7 +30,7 @@ const ProductDetailsImage = ({ images }: { images: ProductImageType[] }) => {
             onClick={() => setActiveIndex(index)}
             className={`rounded border p-1 ${activeIndex === index ? 'border-primary' : 'border-transparent'}`}
           >
-            <ProductImage props={image} />
+            <ProductImage {...image} />
           </li>
         ))}
       </ul>

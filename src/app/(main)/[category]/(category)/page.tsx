@@ -26,7 +26,7 @@ export default async function CategoryPage({ params }: { params: Promise<{ categ
           i === 0 ? 'flex-row gap-12 py-1 *:flex-1 sm:flex-col sm:gap-2 sm:py-3 sm:*:flex-none' : 'flex-col gap-2',
         )}
       >
-        <ProductImage props={product?.image} />
+        <ProductImage product={product} />
         <h3 className="text-muted-foreground text-center text-sm font-normal uppercase">{getCategoryTitle(subcategory)}</h3>
       </div>
     </Link>

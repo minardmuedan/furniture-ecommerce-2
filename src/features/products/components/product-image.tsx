@@ -1,44 +1,40 @@
 'use client'
 
-import type { Product } from '@/types/products'
 import { ImageOff } from 'lucide-react'
-import Image from 'next/image'
+import Image, { type ImageProps } from 'next/image'
 import { memo, useState } from 'react'
 import { Blurhash } from 'react-blurhash'
 
 const MemoizedBlurhash = memo(Blurhash)
 
-const ProductImage = ({ props, className }: { props?: Product['image']; className?: string }) => {
+type Props = { src: string; alt: string; width: number; height: number; blurhash: string }
+
+const ProductImage = ({ blurhash, src, alt, width, height }: Props) => {
   const [isLoaded, setIsLoaded] = useState(false)
   const [hasError, setHasError] = useState(false)
 
-  if (hasError || !props)
+  if (!src || hasError)
     return (
-      <div className="grid aspect-square w-full place-items-center rounded-md border">
+      <div className="grid aspect-square w-full place-items-center rounded-md">
         <ImageOff className="text-muted-foreground size-16" />
       </div>
     )
 
-  return (
-    <div className="relative flex aspect-square w-fit items-center justify-center overflow-hidden">
-      <MemoizedBlurhash
-        hash={props.blurHash}
-        resolutionX={32}
-        resolutionY={32}
-        punch={1}
-        className={`absolute! -z-1 transition-opacity duration-300 ${isLoaded ? 'opacity-0' : 'opacity-50'}`}
-      />
+  const loader = () => `/product-images/${src}.png`
+  const onError = () => setHasError(true)
+  const onLoadingComplete = () => setIsLoaded(true)
 
-      <Image
-        src={props.src}
-        alt={props.alt}
-        width={props.width}
-        height={props.height}
-        onLoadingComplete={() => setIsLoaded(true)}
-        onError={() => setHasError(true)}
-        loader={({ src }) => `/product-images/${src}/c-r-300.png`}
-        className={`${className}`}
-      />
+  return (
+    <div className={'aspect-square w-full content-center overflow-hidden border border-red-300'}>
+      <div style={{ aspectRatio: width / height }} className="relative mx-auto max-h-full border">
+        <Image src={src} alt={alt} fill loader={loader} onError={onError} onLoadingComplete={onLoadingComplete} />
+
+        {/* <MemoizedBlurhash
+          hash={blurhash}
+          style={{ opacity: isLoaded ? 0 : 0.75 }}
+          className="absolute! inset-0 size-full! transition-opacity duration-300"
+        /> */}
+      </div>
     </div>
   )
 }

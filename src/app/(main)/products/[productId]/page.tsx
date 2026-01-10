@@ -32,8 +32,8 @@ export default async function ProductDetailsPage({ params }: PageProps<'/product
 
         <section className="mt-10 flex flex-col items-center gap-20 lg:flex-row lg:items-stretch lg:justify-center">
           <div className="relative">
-            <div className="sticky top-16">
-              <ProductDetailsImage images={[...Array(4)].map(() => product.image)} />
+            <div className="sticky top-16 w-full">
+              <ProductDetailsImage image={product.image} />
             </div>
           </div>
 
